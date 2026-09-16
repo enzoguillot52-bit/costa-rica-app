@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ZONES } from "../../data/constants.js";
+import { zonePatternUrl, zonePatternSize } from "../../lib/zonePattern.js";
+import SectionLabel from "../SectionLabel.jsx";
 import BudgetDonut from "./BudgetDonut.jsx";
 import DayEditForm from "./DayEditForm.jsx";
 
@@ -46,15 +48,11 @@ export default function DayCard({ day, edited, onEdit, onReset, direction }) {
     >
       <div
         className="relative px-[22px] py-5 text-white overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${z.color}, ${z.dark})` }}
+        style={{ background: `linear-gradient(135deg, ${z.color}, ${z.dark} 78%)` }}
       >
-        <div
-          className="absolute inset-0 opacity-[0.12] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          }}
-        />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.16), transparent 55%)" }} />
+        <div className="absolute inset-0" style={{ backgroundImage: zonePatternUrl(day.zone), backgroundSize: zonePatternSize(day.zone), backgroundPosition: "bottom" }} />
+        <div className="absolute inset-x-0 bottom-0 h-10" style={{ background: `linear-gradient(to top, ${z.dark}55, transparent)` }} />
         <div className="relative flex justify-between items-start">
           <div className="flex-1 pr-3">
             <div className="text-[10px] opacity-75 tracking-[2px] mb-1.5">
@@ -79,10 +77,13 @@ export default function DayCard({ day, edited, onEdit, onReset, direction }) {
           </div>
         </div>
         <div className="relative mt-2.5 text-[12px] italic opacity-85">{day.weather.label}</div>
+        <svg className="absolute left-0 right-0 bottom-[-1px] w-full" height="14" viewBox="0 0 100 14" preserveAspectRatio="none">
+          <path d="M0 14 Q 25 0 50 8 T 100 6 L100 14 Z" fill="#FEFBF4" />
+        </svg>
       </div>
 
-      <div className="px-5 pt-[18px]">
-        <div className="text-[10px] tracking-[2px] text-[#AAA] mb-3">PROGRAMME</div>
+      <div className="px-5 pt-[20px]">
+        <SectionLabel color={z.color}>PROGRAMME</SectionLabel>
         {edited.activities.map((a, i) => (
           <div key={i} className="flex gap-2.5 mb-2.5 items-start">
             <div
@@ -123,12 +124,12 @@ export default function DayCard({ day, edited, onEdit, onReset, direction }) {
           { icon: "🏡", lbl: "LOGEMENT", name: edited.sleep.name, sub: edited.sleep.price > 0 ? `~${edited.sleep.price}$/nuit` : "Transit" },
           { icon: "🍽️", lbl: "RESTAURANT", name: edited.eat.name, sub: edited.eat.detail },
         ].map((it, i) => (
-          <div key={i} className="flex-1 rounded-2xl px-3.5 py-3 bg-[#F6F6F0]">
-            <div className="text-[9px] text-[#AAA] tracking-[1.5px] mb-1.5">
-              {it.icon} {it.lbl}
-            </div>
-            <div className="text-[13px] font-bold text-[#1A1A1A] leading-tight">{it.name}</div>
-            <div className="text-[11px] text-[#777] mt-0.5 leading-snug">{it.sub}</div>
+          <div key={i} className="flex-1 rounded-2xl px-3.5 py-3 bg-[#F6F6F0] relative overflow-hidden">
+            <div className="absolute -right-3 -top-3 w-12 h-12 rounded-full opacity-[0.35]" style={{ background: z.light }} />
+            <div className="relative w-7 h-7 rounded-full flex items-center justify-center text-[13px] mb-2" style={{ background: z.light }}>{it.icon}</div>
+            <div className="relative text-[8.5px] text-[#AAA] tracking-[1.5px] mb-1">{it.lbl}</div>
+            <div className="relative text-[13px] font-bold text-[#1A1A1A] leading-tight">{it.name}</div>
+            <div className="relative text-[11px] text-[#777] mt-0.5 leading-snug">{it.sub}</div>
           </div>
         ))}
       </div>
@@ -161,7 +162,7 @@ export default function DayCard({ day, edited, onEdit, onReset, direction }) {
       )}
 
       <div className="px-5 pt-4">
-        <div className="text-[10px] tracking-[2px] text-[#AAA] mb-2.5">BUDGET ESTIMÉ / PERSONNE</div>
+        <SectionLabel color={z.color}>BUDGET ESTIMÉ / PERSONNE</SectionLabel>
         <BudgetDonut budget={day.budget} />
       </div>
 

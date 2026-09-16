@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 
 const TABS = [
   { id: "voyage", emoji: "🗺️", label: "Voyage" },
+  { id: "parcs", emoji: "🏞️", label: "Parcs" },
   { id: "biodex", emoji: "🔍", label: "Biodex" },
   { id: "contacts", emoji: "📞", label: "Contacts" },
 ];

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import BottomNav from "./components/BottomNav.jsx";
 import Planner from "./components/planner/Planner.jsx";
+import ParksPage from "./components/parks/ParksPage.jsx";
 import Biodex from "./components/biodex/Biodex.jsx";
 import Contacts from "./components/contacts/Contacts.jsx";
 import { useLocalStorage } from "./lib/useLocalStorage.js";
@@ -23,6 +24,7 @@ export default function App() {
             transition={{ duration: 0.2 }}
           >
             {tab === "voyage" && <Planner />}
+            {tab === "parcs" && <ParksPage />}
             {tab === "biodex" && <Biodex />}
             {tab === "contacts" && <Contacts />}
           </motion.div>

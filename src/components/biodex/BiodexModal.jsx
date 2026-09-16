@@ -28,10 +28,10 @@ export default function BiodexModal({ entry, category, onClose }) {
       >
         <div className="overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: "touch" }}>
           <div className="relative">
-            <SpeciesArt entry={entry} category={category} height={280} heroMode />
+            <SpeciesArt entry={entry} category={category} height={340} heroMode />
             <div
-              className="absolute bottom-0 left-0 right-0 h-28"
-              style={{ background: "linear-gradient(to top, #07160C, transparent)" }}
+              className="absolute inset-x-0 bottom-0 h-40"
+              style={{ background: "linear-gradient(to top, #07160C 15%, rgba(7,22,12,.55) 55%, transparent)" }}
             />
             <button
               onClick={onClose}
@@ -45,12 +45,12 @@ export default function BiodexModal({ entry, category, onClose }) {
             >
               {d.label}
             </div>
-          </div>
-          <div className="px-5 pb-8">
-            <div className="-mt-2 relative z-[2] mb-4">
-              <div className="text-[28px] font-extrabold text-white leading-tight font-display">{entry.name}</div>
-              <div className="text-[12px] text-white/40 italic font-mono-sci mt-1">{entry.latin}</div>
+            <div className="absolute left-5 right-5 bottom-4">
+              <div className="text-[32px] font-extrabold text-white leading-[1.05] font-display" style={{ textShadow: "0 2px 20px rgba(0,0,0,.6)" }}>{entry.name}</div>
+              <div className="text-[13px] text-white/60 italic font-mono-sci mt-1">{entry.latin}</div>
             </div>
+          </div>
+          <div className="px-5 pt-4 pb-8">
             <div className="flex gap-2 flex-wrap mb-5">
               <div className="rounded-full px-3.5 py-1.5 text-[12px] text-white/55 bg-white/[0.07]">📍 {entry.zone}</div>
               <div className="rounded-full px-3.5 py-1.5 text-[12px] text-white/55 bg-white/[0.07]">🌿 {entry.habitat}</div>
