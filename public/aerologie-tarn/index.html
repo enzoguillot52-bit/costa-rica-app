@@ -736,7 +736,7 @@ select { background: var(--raised); border: 1px solid var(--line); border-radius
 .dot.st-na, .pin.st-na, .cell.st-na { background: var(--na); }
 
 .list { padding: 4px 8px 10px; border-bottom: 1px solid var(--line); }
-.row { width: 100%; display: grid; grid-template-columns: 14px 1fr auto 38px; align-items: center; gap: 10px; padding: 8px 8px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+.row { width: 100%; display: grid; grid-template-columns: 14px 1fr auto 34px 44px; align-items: center; gap: 10px; padding: 8px 8px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
 .row:hover { background: var(--line-2); }
 .row.sel { background: var(--raised); box-shadow: inset 0 0 0 1px var(--line); }
 .row .nm b { display: block; font-weight: 600; font-size: 13.5px; }
@@ -745,8 +745,11 @@ select { background: var(--raised); border: 1px solid var(--line); border-radius
 .row .wd b { font-size: 15px; margin-left: 3px; }
 .row .wd .arw { vertical-align: -2px; }
 .row .wd small, .row .tb small { font-family: var(--sans); }
-.row .tb { text-align: center; font-family: var(--mono); }
+.row .tb, .row .th { text-align: center; font-family: var(--mono); }
+.row .th b { font-size: 12.5px; color: var(--therm); }
+.row .th small { font-family: var(--sans); }
 .row .tb b { font-size: 14px; }
+.row .th b { display: block; }
 .arw path { fill: currentColor; }
 
 .detail { padding: 14px 16px 6px; }
@@ -809,6 +812,7 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
 .garw path { stroke: #fff; stroke-width: 1.6; paint-order: stroke; }
 .garw span { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font: 600 10px/1 var(--mono); color: #1d2422; text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff; }
 .z-lo .garw span { display: none; }
+.tlbl.weak { color: #8a4a22; background: #fbefe6; border-style: dashed; }
 .tlbl { display: inline-block; transform: translate(6px, -50%); white-space: nowrap; font: 600 11px/1 var(--mono); color: #7a2a08; background: #fff3e8; border: 1px solid #f0b48c; padding: 2px 4px; border-radius: 4px; }
 .lyr { background: var(--raised); color: var(--ink); border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,.25); max-width: 250px; }
 .lyr summary { cursor: pointer; padding: 7px 11px; font-weight: 600; font-size: 13px; }
@@ -823,6 +827,11 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
 .sw-sun { background: linear-gradient(90deg, rgba(40,70,130,.6), rgba(255,170,40,.8)); }
 .sw-therm { background: #ffd2b5; border: 2px solid #d9541e; }
 .leaflet-container { font-family: var(--sans); }
+.mapchip { position: absolute; z-index: 800; left: 50%; transform: translateX(-50%); bottom: 26px; width: max-content; max-width: calc(100% - 24px); background: var(--raised); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 7px 11px 8px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 1px 6px rgba(0,0,0,.25); }
+.mapchip span { display: block; }
+.mapchip .sw { display: inline-block; vertical-align: -1px; width: 11px; height: 11px; margin: 0 6px 0 0; }
+.mapchip button, .jump { margin-top: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--panel); border-radius: 6px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; }
+.best .jump { margin: 0 0 0 4px; padding: 2px 8px; }
 .mapnote { position: absolute; z-index: 800; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 78%; background: var(--raised); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px; font-size: 13px; text-align: center; box-shadow: 0 1px 5px rgba(0,0,0,.2); pointer-events: none; }
 .leaflet-popup-content { font-size: 12.5px; line-height: 1.45; }
 .leaflet-tooltip { font-size: 12px; }
@@ -835,6 +844,7 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
   .col1 { overflow: visible; border-right: 0; }
   .leaflet-control-scale { display: none; }
   .leaflet-control-attribution { font-size: 10px; }
+  .mapchip { bottom: 34px; font-size: 12px; }
   .kv { grid-template-columns: repeat(2, 1fr); }
   .srow { grid-template-columns: 46px repeat(14, 1fr); }
   .brand p { display: none; }
@@ -879,8 +889,8 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
         <h4>Ensoleillement</h4>
         <p>Position du soleil (équations de la NOAA), angle du rayonnement direct sur chaque pente et ombres portées par le relief, plus le rayonnement diffus.</p>
         <h4>Thermiques</h4>
-        <p>Le sommet de la couche convective vient de la méthode de la particule : l’air du sol réchauffé de 1,5 °C monte en se refroidissant de 0,98 °C par 100 m jusqu’à rencontrer un air aussi chaud. Le flux de chaleur au sol est estimé d’après le rayonnement et l’humidité du sol (bilan de Stull), d’où la vitesse ascendante w* de Deardorff, répartie en hauteur selon le profil de Lenschow. Le plafond prudent est l’altitude où une aile qui chute de 1,1 m/s en virage ne monte presque plus.</p>
-        <p>Les sources probables : la chaleur des pentes ensoleillées remonte en suivant la plus forte pente, poussée par le vent, jusqu’aux crêtes et aux ruptures de pente où elle se détache.</p>
+        <p>Le sommet de la couche convective vient de la méthode de la particule : l’air du sol réchauffé de 1,5 °C monte en se refroidissant de 0,98 °C par 100 m jusqu’à rencontrer un air aussi chaud. Le flux de chaleur au sol est estimé d’après le rayonnement et l’humidité du sol (bilan de Stull), d’où la vitesse ascendante w* de Deardorff, répartie en hauteur selon le profil de Lenschow. Le plafond prudent est l’altitude où une aile qui chute de 1,1 m/s en virage ne monte presque plus. Les thermiques trop faibles pour monter restent tracés, en pointillés.</p>
+        <p>Les sources probables : la chaleur des pentes ensoleillées remonte en suivant la plus forte pente, poussée par le vent, jusqu’aux crêtes et aux ruptures de pente où elle se détache. La force de chaque thermique tient compte de la chauffe moyenne des pentes qui l’alimentent : en hiver, une pente face au soleil chauffe nettement plus que le plat.</p>
         <h4>Dérive avec le vent</h4>
         <p>Le décalage horizontal suit <code>dx/dz = k · Ū(z) / w(z)</code> : Ū est le vent moyen entre la source et l’altitude z, w la vitesse de l’air qui monte. Avec k = 1, le thermique prend tout le vent ; les mesures de Predelli (Technical Soaring, 2023) montrent plutôt qu’il avance à la moitié du vent environ. Le trait orange utilise k = 0,75 et la zone claire couvre k = 0,5 à 1. La direction change avec la hauteur quand le vent tourne.</p>
         <h4>Limites</h4>
@@ -1146,6 +1156,8 @@ const Core = (() => {
        et se détache là où il n'y a plus de pente à remonter. */
     const order = Array.from({ length: n }, (_, i) => i).sort((p1, p2) => z[p1] - z[p2]);
     const acc = Float32Array.from(heat), rel = new Float32Array(n);
+    const cnt = new Float32Array(n), reln = new Float32Array(n);   // surface du collecteur, pour la chauffe moyenne
+    for (let i = 0; i < n; i++) cnt[i] = heat[i] > 0 ? 1 : 0;
     for (const i of order) {
       if (acc[i] <= 0) continue;
       const r = (i / N) | 0, c = i % N; let best = -1, bs = 0;
@@ -1157,12 +1169,14 @@ const Core = (() => {
         const sc = s + 0.02 * V * ((dc * tx - dr * ty) / Math.hypot(dr, dc));
         if (sc > bs) { bs = sc; best = rr * N + c2; }
       }
-      if (best < 0) rel[i] += acc[i]; else { rel[i] += 0.15 * acc[i]; acc[best] += 0.85 * acc[i]; }
+      if (best < 0) { rel[i] += acc[i]; reln[i] += cnt[i]; }
+      else { rel[i] += 0.15 * acc[i]; reln[i] += 0.15 * cnt[i]; acc[best] += 0.85 * acc[i]; cnt[best] += 0.85 * cnt[i]; }
     }
-    const relS = new Float32Array(n); let relMax = 0;
+    const relS = new Float32Array(n), relNS = new Float32Array(n); let relMax = 0;
     for (let r = 2; r < N - 2; r++) for (let c = 2; c < N - 2; c++) {
-      let s = 0; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) s += rel[(r + dr) * N + c + dc];
-      relS[r * N + c] = s; if (s > relMax) relMax = s;
+      let s = 0, sn = 0;
+      for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { s += rel[(r + dr) * N + c + dc]; sn += reln[(r + dr) * N + c + dc]; }
+      relS[r * N + c] = s; relNS[r * N + c] = sn; if (s > relMax) relMax = s;
     }
     const sources = [];
     if (day && relMax > 0) {
@@ -1170,7 +1184,8 @@ const Core = (() => {
       cand.sort((p1, p2) => relS[p2] - relS[p1]);
       for (const i of cand) {
         const r = (i / N) | 0, c = i % N;
-        if (sources.every(s => Math.hypot(s.r - r, s.c - c) >= 4)) sources.push({ r, c, z: z[i], rel: relS[i] / relMax });
+        // meanHeat : chauffe moyenne (W/m²) des pentes qui alimentent ce point de déclenchement
+        if (sources.every(s => Math.hypot(s.r - r, s.c - c) >= 4)) sources.push({ r, c, z: z[i], rel: relS[i] / relMax, meanHeat: relNS[i] > 0 ? relS[i] / relNS[i] : 0 });
         if (sources.length >= 7) break;
       }
     }
@@ -1265,7 +1280,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   const S = {
     level: store.get('aero.level', 'debutant'),
     soil: store.get('aero.soil', [5, 6, 7, 8].includes(month) ? 'sec' : [3, 4, 9].includes(month) ? 'normal' : 'humide'),
-    layers: Object.assign({ grid: true, turb: true, lift: false, sun: false, therm: true }, store.get('aero.layers', {})),
+    layers: Object.assign({ grid: true, turb: true, lift: true, sun: false, therm: true }, store.get('aero.layers', {})),
     spot: store.get('aero.spot', 'capdecouverte'), hour: 0
   };
   if (!SPOTS.some(s => s.id === S.spot)) S.spot = SPOTS[0].id;
@@ -1310,6 +1325,39 @@ if (typeof module !== 'undefined') module.exports = Core;
   const gGrid = L.layerGroup().addTo(map), gSite = L.layerGroup().addTo(map), gTherm = L.layerGroup().addTo(map), gSpots = L.layerGroup().addTo(map);
   const ov = { turb: null, lift: null, sun: null };
 
+  /* Bandeau en bas de la carte : ce que montrent les couches, ou pourquoi elles sont vides */
+  const chip = L.DomUtil.create('div', 'mapchip', map.getContainer());
+  chip.hidden = true;
+  L.DomEvent.disableClickPropagation(chip); L.DomEvent.disableScrollPropagation(chip);
+  let chipState = null;
+  const ZOOM_RELIEF = 12;
+  function showChip() {
+    const sp = SPOTS.find(x => x.id === S.spot);
+    let lines = chipState ? chipState.lines : [], action = chipState ? chipState.action : null;
+    if (!TIMES.length || !(S.layers.turb || S.layers.lift || S.layers.sun || S.layers.therm)) { chip.hidden = true; return; }
+    if (map.getZoom() < ZOOM_RELIEF) {
+      lines = ['Rotors, portance et thermiques sont calculés sur 4 km autour du site choisi.'];
+      action = { label: 'Zoomer sur ' + sp.name, fn: () => selectSpot(sp.id, true) };
+    } else if (!map.getBounds().pad(-0.05).contains([sp.lat, sp.lon]) && !action) {
+      action = { label: 'Revenir à ' + sp.name, fn: () => map.flyTo([sp.lat, sp.lon], Math.max(map.getZoom(), 14), { duration: 0.6 }) };
+    }
+    if (!lines.length) { chip.hidden = true; return; }
+    chip.hidden = false;
+    chip.innerHTML = lines.map(l => `<span>${l}</span>`).join('') + (action ? `<button type="button">${esc(action.label)}</button>` : '');
+    if (action) chip.querySelector('button').onclick = action.fn;
+  }
+  function bestThermal(sp) {          // heure où les thermiques sont les plus forts sur les jours prévus
+    const now = Date.now() / 1000; let best = null;
+    for (let i = 0; i < TIMES.length; i++) {
+      if (TIMES[i] < now - 1800) continue;
+      const x = derive(sp, i); if (!x || !x.day || !(x.wstar > 0)) continue;
+      const score = x.col && x.col.usable ? 10 + x.col.climbMax : x.wstar;
+      if (!best || score > best.score) best = { i, score, x };
+    }
+    return best;
+  }
+  const bestLabel = b => `${shortDay(TIMES[b.i])} à ${hourOf(TIMES[b.i])} h` + (b.x.col && b.x.col.usable ? ` (+${f1(b.x.col.climbMax)} m/s)` : '');
+
   const LayerCtl = L.Control.extend({
     options: { position: 'topright' },
     onAdd() {
@@ -1317,15 +1365,17 @@ if (typeof module !== 'undefined') module.exports = Core;
       d.innerHTML = `<details ${window.matchMedia('(max-width: 1279px)').matches ? '' : 'open'}><summary>Couches</summary>
         <label><input type="checkbox" data-l="grid"><i class="sw sw-grid"></i><span>Vent régional<small>flèches : vers où va l’air</small></span></label>
         <label><input type="checkbox" data-l="turb"><i class="sw sw-turb"></i><span>Rotors et turbulence<small>sous le vent du relief</small></span></label>
-        <label><input type="checkbox" data-l="lift"><i class="sw sw-lift"></i><span>Portance de pente<small>air qui monte de plus de 1 m/s</small></span></label>
+        <label><input type="checkbox" data-l="lift"><i class="sw sw-lift"></i><span>Portance de pente<small>bleu franc : de quoi tenir en l’air</small></span></label>
         <label><input type="checkbox" data-l="sun"><i class="sw sw-sun"></i><span>Ensoleillement<small>bleu : pente à l’ombre</small></span></label>
-        <label><input type="checkbox" data-l="therm"><i class="sw sw-therm"></i><span>Thermiques et dérive<small>trait : estimation, zone : fourchette</small></span></label>
+        <label><input type="checkbox" data-l="therm"><i class="sw sw-therm"></i><span>Thermiques et dérive<small>trait : où monter · pointillés : trop faibles</small></span></label>
         <p>Relief, rotors et thermiques sont calculés sur 4 km autour du site choisi.</p></details>`;
       d.querySelectorAll('input').forEach(i => { i.checked = !!S.layers[i.dataset.l]; });
       d.addEventListener('change', e => {
         const l = e.target.dataset.l; if (!l) return;
         S.layers[l] = e.target.checked; store.set('aero.layers', S.layers);
-        if (l === 'grid') renderGrid(); else renderTerrain();
+        if (l === 'grid') renderGrid();
+        else if (e.target.checked && map.getZoom() < ZOOM_RELIEF) selectSpot(S.spot, true);
+        else renderTerrain();
       });
       L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
       return d;
@@ -1465,7 +1515,8 @@ if (typeof module !== 'undefined') module.exports = Core;
     const lee = rating.dev != null && rating.dev > 110 && (mean || 0) >= 5;
     const turb = C.turbIndex({ mean: mean || 0, gust, shear, lee, wstar });
     const col = wstar > 0 && zi ? C.thermalColumn(prof, wstar, { zs: zg, zg, ziAlt: zg + zi, zm: zg, sink: SINK }) : null;
-    const o = { mean, gust, dir, T2, rain, cape, prof, t, zg, sun, sw, direct, diffuse, zi, ziSrc, blh, day, H, wstar, shear, rating, turb, col, cloud: v('cloud_cover') };
+    const colAir = day && wstar > 0.3 && zi ? C.thermalColumn(prof, wstar, { zs: zg, zg, ziAlt: zg + zi, zm: zg, sink: 0 }) : null;
+    const o = { mean, gust, dir, T2, rain, cape, prof, t, zg, sun, sw, direct, diffuse, zi, ziSrc, blh, day, H, wstar, shear, rating, turb, col, colAir, cloud: v('cloud_cover') };
     cache.set(key, o); return o;
   }
 
@@ -1510,7 +1561,8 @@ if (typeof module !== 'undefined') module.exports = Core;
         <span class="dot st-${st}" title="${ST[st]}"></span>
         <span class="nm"><b>${esc(sp.name)}</b><small>${esc(sp.sub)} · ${Math.round(sp.dist)} km</small></span>
         <span class="wd">${d && d.dir != null ? arrow(d.dir, 15) : ''}<b>${d && d.mean != null ? Math.round(d.mean) : '–'}</b><small>${d && d.dir != null ? C.compass16(d.dir) + ' · raf. ' + (d.gust == null ? '–' : Math.round(d.gust)) : 'km/h'}</small></span>
-        <span class="tb" title="Indice de turbulence sur 10"><b>${d ? d.turb.idx : '–'}</b><small>turb.</small></span></button>`;
+        <span class="tb" title="Indice de turbulence sur 10"><b>${d ? d.turb.idx : '–'}</b><small>turb.</small></span>
+        <span class="th" title="Montée attendue en thermique"><b>${!d ? '–' : d.col && d.col.usable ? '+' + f1(d.col.climbMax) : d.colAir ? 'faible' : '–'}</b><small>therm.</small></span></button>`;
     }).join('');
   }
   $('#list').onclick = e => { const b = e.target.closest('.row'); if (b) selectSpot(b.dataset.id, true); };
@@ -1562,13 +1614,16 @@ if (typeof module !== 'undefined') module.exports = Core;
   map.on('zoomend', () => {
     const z = map.getZoom(), el = map.getContainer();
     el.classList.toggle('z-lo', z < 10); el.classList.toggle('z-hi', z >= 14);
-    renderMarkers(); renderGrid();
+    renderMarkers(); renderGrid(); showChip();
   });
+  map.on('moveend', showChip);
   map.getContainer().classList.add('z-lo');
+  const siteBox = sp => { const h = (N - 1) / 2 + 0.5; return L.latLngBounds(offset(sp.lat, sp.lon, -h * DX, -h * DX), offset(sp.lat, sp.lon, h * DX, h * DX)); };
   function selectSpot(id, fly) {
     S.spot = id; store.set('aero.spot', id);
     const sp = SPOTS.find(s => s.id === id);
-    if (fly || map.getZoom() < LOWZ) map.flyTo([sp.lat, sp.lon], sp.type === 'ecole' ? 15 : 14, { duration: 0.8 });
+    // cadre tout le carré analysé (4 km) : rotors et thermiques restent à l'écran, même sur téléphone
+    if (fly || map.getZoom() < LOWZ) map.flyToBounds(siteBox(sp), { padding: [8, 8], maxZoom: 15, duration: 0.8 });
     renderAll();
     if (window.matchMedia('(max-width: 820px)').matches) { if (fly) $('#map').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     else { const c = $('.col1'); (getComputedStyle(c).display === 'contents' ? $('.info') : c).scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -1581,9 +1636,16 @@ if (typeof module !== 'undefined') module.exports = Core;
       return `<tr><td>${z} m</td><td class="num">${n0(r10(d.zg + z))} m</td><td>${arrow(f, 13)} ${C.compass16(f)}</td><td class="num"><b>${Math.round(s)}</b> km/h</td></tr>`;
     }).join('');
   }
-  function thermalHTML(d) {
-    if (!d.day) return `<p class="muted">Pas de chauffe à cette heure : soleil trop bas ou ciel couvert.</p>`;
-    if (!d.col || !d.col.usable) return `<p class="muted">Thermiques trop faibles pour une aile : air ascendant estimé à ${f1(d.wstar)} m/s, à peine plus que le taux de chute d’une aile en virage (${f1(SINK)} m/s).</p>`;
+  function thermalHTML(d, sp) {
+    const b = bestThermal(sp), better = b && b.i !== S.hour && (!d.col || !d.col.usable || (b.x.col && b.x.col.usable && b.x.col.climbMax > d.col.climbMax + 0.2));
+    const bestP = better ? `<p class="best">Meilleur moment des jours prévus : <button type="button" class="jump" data-i="${b.i}">${esc(bestLabel(b))}</button></p>` : '';
+    if (!d.day) return `<p class="muted">Pas de chauffe à cette heure : soleil trop bas ou ciel couvert.</p>` + bestP;
+    if (!d.col || !d.col.usable) {
+      if (!d.colAir) return `<p class="muted">Presque pas de chauffe : pas de thermique à attendre.</p>` + bestP;
+      const a = d.colAir;
+      return `<p><b>Thermiques trop faibles pour monter</b> : l’air monte à ${f1(d.wstar)} m/s au mieux, une aile chute à ${f1(SINK)} m/s en virage.</p>
+        <p>Sur la carte, ils sont en pointillés : là où ils partiraient et comment le vent les couche. Au sommet de la couche, vers ${n0(r10(a.top))} m, l’air est décalé d’environ <b>${n0(r10(K_MID * a.drift))} m ${toward(a.driftTo)}</b>.</p>` + bestP;
+    }
     const c = d.col, mid = K_MID * c.drift, tilt = C.tiltDeg(c, K_MID);
     const tl = tilt < 30 ? 'presque verticaux' : tilt < 55 ? 'penchés sous le vent' : 'très couchés, souvent hachés par le vent';
     const force = c.climbMax < 0.5 ? 'Thermiques faibles, juste de quoi tenir' : c.climbMax < 1.5 ? 'Thermiques modérés' : c.climbMax < 2.5 ? 'Bons thermiques' : 'Thermiques forts, pour pilotes à l’aise';
@@ -1594,7 +1656,7 @@ if (typeof module !== 'undefined') module.exports = Core;
         <div><b>${n0(r10(mid))} m</b><small>décalage au plafond</small></div></div>
       <p><b>${force}.</b> Ils sont ${tl} (${Math.round(tilt)}° par rapport à la verticale). Au plafond, le thermique est à <b>${n0(r10(mid))} m de son point de départ, ${toward(c.driftTo)}</b> : entre ${n0(r10(K_LO * c.drift))} et ${n0(r10(K_HI * c.drift))} m selon le modèle de dérive.</p>
       <p>${recenterTip(c)}</p>
-      <p class="muted">Sommet de la couche convective vers ${n0(r10(d.zg + d.zi))} m (${d.ziSrc})${d.blh != null && !String(d.ziSrc).startsWith('modèle') ? `, ${wxInfo.blh} : ${n0(r10(d.zg + d.blh))} m` : ''}. Flux de chaleur au sol : ${Math.round(d.H)} W/m² (sol ${S.soil}).</p>`;
+      <p class="muted">Sommet de la couche convective vers ${n0(r10(d.zg + d.zi))} m (${d.ziSrc})${d.blh != null && !String(d.ziSrc).startsWith('modèle') ? `, ${wxInfo.blh} : ${n0(r10(d.zg + d.blh))} m` : ''}. Flux de chaleur au sol : ${Math.round(d.H)} W/m² (sol ${S.soil}).</p>` + bestP;
   }
   function renderDetail() {
     const sp = SPOTS.find(s => s.id === S.spot), el = $('#detail');
@@ -1619,11 +1681,12 @@ if (typeof module !== 'undefined') module.exports = Core;
       <h3>Heure par heure</h3><div class="strip">${strip}</div>
       <h3>Vent en altitude</h3><table class="prof"><thead><tr><th>Hauteur sol</th><th>Altitude</th><th>Direction</th><th>Force</th></tr></thead><tbody>${profileRows(d, sp)}</tbody></table>
       <p class="muted">Cisaillement entre 10 et 100 m : ${Math.round(d.shear)} km/h.</p>
-      <h3>Thermiques</h3>${thermalHTML(d)}
+      <h3>Thermiques</h3>${thermalHTML(d, sp)}
       <h3>Relief autour du site</h3><p id="demstate" class="muted"></p>
       <h3>Vent en direct</h3>${beacons}
       <h3>À savoir sur le site</h3>${notes}`;
     el.querySelector('.strip').onclick = e => { const b = e.target.closest('.cell'); if (b) setHour(+b.dataset.i); };
+    el.querySelectorAll('.jump').forEach(b => b.onclick = () => setHour(+b.dataset.i));
   }
 
   /* ---------- Couches de relief autour du site choisi ---------- */
@@ -1652,58 +1715,103 @@ if (typeof module !== 'undefined') module.exports = Core;
       L.polyline([[sp.lat, sp.lon], [sp.land.lat, sp.land.lon]], { pane: 'sitePane', renderer: siteR, color: '#1d2422', weight: 1.5, dashArray: '2 6', interactive: false }).addTo(gSite);
     }
     const d = TIMES.length ? derive(sp, S.hour) : null;
-    if (!d) { if (ds()) ds().textContent = ''; return; }
-    if (!(S.layers.turb || S.layers.lift || S.layers.sun || S.layers.therm)) { if (ds()) ds().textContent = 'Active une couche (rotors, portance, ensoleillement ou thermiques) pour analyser le relief.'; return; }
+    const head = `<b>Autour de ${esc(sp.name)}</b> · ${hourOf(TIMES[S.hour] || 0)} h`;
+    const done = (lines, action) => { chipState = lines ? { lines: [head].concat(lines), action } : null; showChip(); };
+    if (!d) { if (ds()) ds().textContent = ''; done(null); return; }
+    if (!(S.layers.turb || S.layers.lift || S.layers.sun || S.layers.therm)) { if (ds()) ds().textContent = 'Active une couche (rotors, portance, ensoleillement ou thermiques) pour analyser le relief.'; done(null); return; }
     let z;
     try {
-      if (!DEMS[sp.id] && ds()) ds().textContent = 'Chargement du relief autour du site…';
+      if (!DEMS[sp.id]) { if (ds()) ds().textContent = 'Chargement du relief autour du site…'; done(['Chargement du relief…']); }
       z = await ensureDEM(sp);
-    } catch (e) { if (job === terrainJob && ds()) ds().textContent = 'Relief indisponible (' + e.message + ') : les couches ne peuvent pas être calculées.'; return; }
+    } catch (e) {
+      if (job === terrainJob) { const m = 'Relief indisponible (' + e.message + ') : les couches ne peuvent pas être calculées.'; if (ds()) ds().textContent = m; done([esc(m)], { label: 'Réessayer', fn: renderTerrain }); }
+      return;
+    }
     if (job !== terrainJob) return;
     const w50 = C.windAt(d.prof, 50), wFrom = C.vecFrom(w50), wKmh = C.vecSpeed(w50) * C.KMH, half = (N - 1) / 2;
     const T = C.analyzeTerrain(z, N, DX, { windFrom: wFrom, windMs: C.vecSpeed(w50), sunElev: d.sun.elev, sunAz: d.sun.az, direct: d.direct, diffuse: d.diffuse });
     const bounds = [offset(sp.lat, sp.lon, -(half + 0.5) * DX, -(half + 0.5) * DX), offset(sp.lat, sp.lon, (half + 0.5) * DX, (half + 0.5) * DX)];
     L.rectangle(bounds, { pane: 'sitePane', renderer: siteR, color: '#1d2422', weight: 1, dashArray: '4 4', fill: false, interactive: false }).addTo(gSite);
     const add = (k, fn, op) => { ov[k] = L.imageOverlay(overlayURL(fn), bounds, { opacity: op, interactive: false, pane: 'terrPane' }).addTo(map); };
+    let nTurb = 0, nLift = 0;
+    for (let i = 0; i < N * N; i++) { if (T.turb[i] > 0.05) nTurb++; if (T.lift[i] > 0.4) nLift++; }
     if (S.layers.sun && T.day) {
       let smin = Infinity, smax = 0; for (let i = 0; i < N * N; i++) if (!T.shade[i]) { smin = Math.min(smin, T.sun[i]); smax = Math.max(smax, T.sun[i]); }
       const span = smax - smin > 1 ? smax - smin : 1;
       add('sun', i => { if (T.shade[i]) return [45, 75, 140, 120]; const q = (T.sun[i] - smin) / span; return [255, Math.round(205 - 75 * q), Math.round(70 - 40 * q), Math.round(20 + 140 * q)]; }, 0.8);
     }
-    if (S.layers.lift) add('lift', i => T.lift[i] > 1 ? [25, 105, 210, Math.min(215, 80 + 60 * T.lift[i])] : [0, 0, 0, 0], 0.85);
+    // portance : bleu clair dès 0,4 m/s, bleu franc au-delà de 1,1 m/s (de quoi tenir en l'air)
+    if (S.layers.lift) add('lift', i => { const w = T.lift[i]; return w > 0.4 ? (w > 1.1 ? [20, 95, 205, Math.min(225, 120 + 45 * w)] : [90, 160, 235, Math.round(60 + 80 * (w - 0.4))]) : [0, 0, 0, 0]; }, 0.85);
     if (S.layers.turb) add('turb', i => { const t = T.turb[i]; return t > 0.05 ? [Math.round(235 - 70 * t), Math.round(110 - 85 * t), Math.round(70 - 30 * t), Math.round(50 + 140 * t)] : [0, 0, 0, 0]; }, 0.85);
     const parts = [`Analyse sur 4 × 4 km (maille ${DX} m), vent de ${C.compass16(wFrom)} à ${Math.round(wKmh)} km/h à 50 m.`];
-    if (S.layers.turb) parts.push(wKmh < 10 ? 'Vent trop faible pour des rotors marqués.' : `En rouge : zones sous le vent où l’air est turbulent, jusqu’à environ ${Math.round(C.clamp(wKmh / 1.609, 7, 20))} fois la hauteur du relief qui les abrite.`);
-    if (S.layers.lift) parts.push('En bleu : pentes où le vent fait monter l’air de plus de 1 m/s.');
-    if (S.layers.sun && !T.day) parts.push('Pas d’ensoleillement à cette heure.');
-    if (S.layers.therm) {
-      if (!d.col || !d.col.usable) parts.push('Pas de thermique exploitable à cette heure.');
+    const lines = []; let action = null;
+    const vent = `${C.compass16(wFrom)} ${Math.round(wKmh)} km/h`;
+    if (S.layers.turb) {
+      if (wKmh < 10) { parts.push('Vent trop faible pour des rotors marqués.'); lines.push(`<i class="sw sw-turb"></i>Pas de rotor : vent faible au relief (${vent})`); }
       else {
-        const zmean = z.reduce((a, b) => a + b, 0) / z.length; let drawn = 0;
-        T.sources.forEach(s => {
-          const ll = offset(sp.lat, sp.lon, (s.c - half) * DX, (half - s.r) * DX);
-          const wl = d.wstar * Math.cbrt(0.7 + 0.6 * s.rel);
-          const cm = C.thermalColumn(d.prof, wl, { zs: s.z, zg: d.zg, ziAlt: d.zg + d.zi, zm: zmean, sink: SINK });
-          if (!cm || !cm.usable) return;
-          drawn++;
+        parts.push(`En rouge : zones sous le vent où l’air est turbulent, jusqu’à environ ${Math.round(C.clamp(wKmh / 1.609, 7, 20))} fois la hauteur du relief qui les abrite.`);
+        lines.push(nTurb ? `<i class="sw sw-turb"></i>Rouge : rotors sous le vent (${vent})` : `<i class="sw sw-turb"></i>Pas de zone sous le vent marquée (${vent})`);
+      }
+    }
+    if (S.layers.lift) {
+      parts.push('En bleu : pentes où le vent fait monter l’air, bleu franc au-delà de 1,1 m/s (de quoi tenir en l’air).');
+      lines.push(nLift ? '<i class="sw sw-lift"></i>Bleu : portance de pente, franc = tu tiens' : '<i class="sw sw-lift"></i>Pas de portance de pente à cette heure');
+    }
+    if (S.layers.sun) {
+      if (!T.day) parts.push('Pas d’ensoleillement à cette heure.');
+      lines.push(T.day ? '<i class="sw sw-sun"></i>Orange : pentes au soleil, bleu : à l’ombre' : '<i class="sw sw-sun"></i>Soleil couché ou trop bas');
+    }
+    if (S.layers.therm) {
+      const zmean = z.reduce((a, b) => a + b, 0) / z.length, flat = Math.max(50, d.direct + d.diffuse);
+      let strong = 0, weak = 0, topMax = 0;
+      if (d.day && d.wstar > 0.3 && d.zi) T.sources.forEach(s => {
+        const ll = offset(sp.lat, sp.lon, (s.c - half) * DX, (half - s.r) * DX);
+        const gain = C.clamp((s.meanHeat || flat) / flat, 0.6, 2);          // pentes au soleil : plus de chauffe que le plat
+        const wl = d.wstar * Math.cbrt(gain);
+        const base = { zs: s.z, zg: d.zg, ziAlt: d.zg + d.zi, zm: zmean };
+        const cm = C.thermalColumn(d.prof, wl, Object.assign({ sink: SINK }, base));
+        const o = { pane: 'thermPane', renderer: thermR };
+        if (cm && cm.usable) {
+          strong++; topMax = Math.max(topMax, cm.top);
           const P = k => cm.col.map(p => offset(ll[0], ll[1], k * p.x, k * p.y)), lo = P(K_LO), hi = P(K_HI), mid = P(K_MID);
-          const o = { pane: 'thermPane', renderer: thermR };
           L.polygon(lo.concat(hi.slice().reverse()), Object.assign({ color: '#d9541e', weight: 1, opacity: 0.55, dashArray: '3 4', fillColor: '#ff8a3d', fillOpacity: 0.3, interactive: false }, o)).addTo(gTherm);
           L.polyline(mid, Object.assign({ color: '#fff', weight: 6, opacity: 0.85, interactive: false }, o)).addTo(gTherm);
-          L.polyline(mid, Object.assign({ color: '#d9541e', weight: 3.5 }, o)).bindTooltip('Axe du thermique : là où le chercher quand tu montes').addTo(gTherm);
+          L.polyline(mid, Object.assign({ color: '#d9541e', weight: 3.5, className: 'th-strong' }, o)).bindTooltip('Axe du thermique : là où le chercher quand tu montes').addTo(gTherm);
           cm.col.forEach(p => {
             const hh = Math.round(p.h); if (!hh || hh % 250) return;
             L.circleMarker(offset(ll[0], ll[1], K_MID * p.x, K_MID * p.y), Object.assign({ radius: 4, color: '#fff', weight: 1.5, fillColor: '#d9541e', fillOpacity: 1 }, o))
               .bindTooltip(`+${hh} m au-dessus de la source (≈ ${n0(r10(s.z + hh))} m) · air +${f1(p.w)} m/s · ${n0(r10(K_MID * Math.hypot(p.x, p.y)))} m de la source`).addTo(gTherm);
           });
           L.circleMarker(ll, Object.assign({ radius: 6 + 5 * s.rel, color: '#7a2a08', weight: 2, fillColor: '#ff8a3d', fillOpacity: 0.92 }, o))
-            .bindPopup(`<b>Source thermique probable</b><br>Déclenchement vers ${n0(r10(s.z))} m, alimentation ${Math.round(100 * s.rel)} % de la meilleure du secteur.<br>Air ascendant ≈ ${f1(wl)} m/s, montée ≈ +${f1(cm.climbMax)} m/s.<br>Plafond prudent ≈ ${n0(r10(cm.top))} m.<br>Décalage au plafond : <b>${n0(r10(K_MID * cm.drift))} m ${toward(cm.driftTo)}</b> (entre ${n0(r10(K_LO * cm.drift))} et ${n0(r10(K_HI * cm.drift))} m).<br>${recenterTip(cm)}`).addTo(gTherm);
+            .bindPopup(`<b>Source thermique probable</b><br>Déclenchement vers ${n0(r10(s.z))} m, pentes ${gain >= 1.05 ? 'plus chauffées que le plat (×' + f1(gain) + ')' : 'peu chauffées'}.<br>Air ascendant ≈ ${f1(wl)} m/s, montée ≈ +${f1(cm.climbMax)} m/s.<br>Plafond prudent ≈ ${n0(r10(cm.top))} m.<br>Décalage au plafond : <b>${n0(r10(K_MID * cm.drift))} m ${toward(cm.driftTo)}</b> (entre ${n0(r10(K_LO * cm.drift))} et ${n0(r10(K_HI * cm.drift))} m).<br>${recenterTip(cm)}`).addTo(gTherm);
           L.marker(mid[mid.length - 1], { pane: 'thermPane', interactive: false, keyboard: false, icon: L.divIcon({ className: 'pinwrap', html: `<span class="tlbl">${n0(r10(cm.top))} m</span>`, iconSize: [0, 0] }) }).addTo(gTherm);
-        });
-        parts.push(drawn ? `${drawn} source${drawn > 1 ? 's' : ''} thermique${drawn > 1 ? 's' : ''} probable${drawn > 1 ? 's' : ''} : le trait orange suit le thermique qui se couche sous le vent, la zone claire couvre l’incertitude sur la dérive.` : 'Aucune source assez alimentée pour un thermique exploitable dans le secteur.');
+        } else {
+          // trop faible pour monter : on trace quand même la colonne d'air, en pointillés
+          const ca = C.thermalColumn(d.prof, wl, Object.assign({ sink: 0 }, base));
+          if (!ca || ca.col.length < 3) return;
+          weak++;
+          const mid = ca.col.map(p => offset(ll[0], ll[1], K_MID * p.x, K_MID * p.y));
+          L.polyline(mid, Object.assign({ color: '#fff', weight: 5, opacity: 0.7, interactive: false }, o)).addTo(gTherm);
+          L.polyline(mid, Object.assign({ color: '#c0703f', weight: 2.5, dashArray: '6 6', className: 'th-weak' }, o)).bindTooltip('Thermique trop faible pour monter : trajet de l’air chaud dans le vent').addTo(gTherm);
+          L.circleMarker(ll, Object.assign({ radius: 5 + 4 * s.rel, color: '#8a4a22', weight: 1.5, dashArray: '2 3', fillColor: '#f3c7a6', fillOpacity: 0.9 }, o))
+            .bindPopup(`<b>Thermique trop faible pour monter</b><br>Départ probable vers ${n0(r10(s.z))} m. L’air y monte à ${f1(wl)} m/s au mieux, ton aile chute à ${f1(SINK)} m/s en virage.<br>Au sommet de la couche (≈ ${n0(r10(ca.top))} m), l’air est décalé d’environ <b>${n0(r10(K_MID * ca.drift))} m ${toward(ca.driftTo)}</b>.`).addTo(gTherm);
+          L.marker(mid[mid.length - 1], { pane: 'thermPane', interactive: false, keyboard: false, icon: L.divIcon({ className: 'pinwrap', html: `<span class="tlbl weak">faible</span>`, iconSize: [0, 0] }) }).addTo(gTherm);
+        }
+      });
+      if (strong) {
+        parts.push(`${strong} thermique${strong > 1 ? 's' : ''} exploitable${strong > 1 ? 's' : ''} : le trait orange suit le thermique qui se couche sous le vent, la zone claire couvre l’incertitude sur la dérive.`);
+        lines.push(`<i class="sw sw-therm"></i>${strong} thermique${strong > 1 ? 's' : ''}, plafond ≈ ${n0(r10(topMax))} m : trait = où le chercher` + (weak ? ` · ${weak} faible${weak > 1 ? 's' : ''} en pointillés` : ''));
+      } else if (weak) {
+        parts.push(`${weak} thermique${weak > 1 ? 's' : ''} trop faible${weak > 1 ? 's' : ''} pour monter, en pointillés : là où ils partiraient et comment le vent les couche.`);
+        lines.push('<i class="sw sw-therm"></i>Thermiques trop faibles pour monter (pointillés)');
+      } else {
+        parts.push(d.day ? 'Pas assez de chauffe pour des thermiques.' : 'Pas de thermiques à cette heure.');
+        lines.push(`<i class="sw sw-therm"></i>${d.day ? 'Pas assez de chauffe pour des thermiques' : 'Pas de thermiques : soleil trop bas'}`);
       }
+      if (!strong) { const b = bestThermal(sp); if (b && b.i !== S.hour) action = { label: 'Meilleur moment : ' + bestLabel(b), fn: () => setHour(b.i) }; }
     }
     if (ds()) ds().textContent = parts.join(' ');
+    done(lines, action);
   }
 
   /* ---------- Réglages ---------- */
@@ -1713,7 +1821,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   map.fitBounds(L.latLngBounds(SPOTS.map(s => [s.lat, s.lon])).pad(0.12));
   renderAll();
   loadWeather();
-  window.__aero = { S, SPOTS, WX, derive, setHour, selectSpot, map };
+  window.__aero = { S, SPOTS, WX, derive, setHour, selectSpot, map, siteBox };
 })();
 </script>
 </body>
