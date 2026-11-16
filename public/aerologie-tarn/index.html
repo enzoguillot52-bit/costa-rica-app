@@ -888,6 +888,8 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
         <p>L’indice sur 10 combine l’écart des rafales, le cisaillement entre 10 et 100 m, la position sous le vent et la force des thermiques. Sur la carte, un point est classé turbulent quand le relief en amont l’abrite du vent (angle d’abri de Winstral, 2002) au-delà d’une distance de 7 à 20 fois la hauteur de l’obstacle selon la force du vent (règle de Pagen), ou quand il se trouve derrière une pente de plus de 15°, où l’écoulement décolle.</p>
         <h4>Ensoleillement</h4>
         <p>Position du soleil (équations de la NOAA), angle du rayonnement direct sur chaque pente et ombres portées par le relief, plus le rayonnement diffus.</p>
+        <h4>Relief</h4>
+        <p>Altitudes IGN RGE ALTI (service de calcul altimétrique de la Géoplateforme), relevées tous les 125 m sur 4 × 4 km autour du site choisi, puis gardées sur ton téléphone. Si l’IGN ne répond pas, relief de secours Copernicus 90 m via Open-Meteo, en un point sur deux.</p>
         <h4>Thermiques</h4>
         <p>Le sommet de la couche convective vient de la méthode de la particule : l’air du sol réchauffé de 1,5 °C monte en se refroidissant de 0,98 °C par 100 m jusqu’à rencontrer un air aussi chaud. Le flux de chaleur au sol est estimé d’après le rayonnement et l’humidité du sol (bilan de Stull), d’où la vitesse ascendante w* de Deardorff, répartie en hauteur selon le profil de Lenschow. Le plafond prudent est l’altitude où une aile qui chute de 1,1 m/s en virage ne monte presque plus. Les thermiques trop faibles pour monter restent tracés, en pointillés.</p>
         <p>Les sources probables : la chaleur des pentes ensoleillées remonte en suivant la plus forte pente, poussée par le vent, jusqu’aux crêtes et aux ruptures de pente où elle se détache. La force de chaque thermique tient compte de la chauffe moyenne des pentes qui l’alimentent : en hiver, une pente face au soleil chauffe nettement plus que le plat.</p>
@@ -1438,7 +1440,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
   async function loadGrid() {
     const pts = [];
-    for (let i = 0; i < 9; i++) for (let j = 0; j < 11; j++) pts.push([+(43.42 + 0.1 * i).toFixed(2), +(1.60 + 0.13 * j).toFixed(2)]);
+    for (let i = 0; i < 7; i++) for (let j = 0; j < 9; j++) pts.push([+(43.42 + 0.8 * i / 6).toFixed(3), +(1.60 + 1.3 * j / 8).toFixed(3)]);
     for (const m of ['meteofrance_seamless', '']) {
       try {
         const r = await fetchVars(pts.map(p => p[0]), pts.map(p => p[1]), ['wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m'], m);
@@ -1462,30 +1464,103 @@ if (typeof module !== 'undefined') module.exports = Core;
       } catch (e) { }
     }
   }
-  const DEMP = {};
+  /* ---------- Relief autour du site ----------
+     1) IGN RGE ALTI (Géoplateforme) : jusqu'à 5 000 points par requête, limite de 5 requêtes par seconde.
+     2) Sinon Open-Meteo (Copernicus 90 m), où chaque point compte comme un appel (600 par minute) :
+        on n'y prend qu'un point sur deux (17 × 17) et on interpole. */
+  const DEMP = {}, DEMSRC = {}, DEMMSG = {}, DEMLISTEN = {};
+  const IGN_ALTI = 'https://data.geopf.fr/altimetrie/1.0/calcul/alti/rest/elevation.json';
+  const RATE_WAIT = (window.__AERO_RATE_WAIT__ || 60) * 1000;
+  const pause = ms => new Promise(r => setTimeout(r, ms));
   function ensureDEM(sp) {
     if (DEMS[sp.id]) return Promise.resolve(DEMS[sp.id]);
-    if (!DEMP[sp.id]) DEMP[sp.id] = fetchDEM(sp).catch(e => { delete DEMP[sp.id]; throw e; });
+    if (!DEMP[sp.id]) DEMP[sp.id] = fetchDEM(sp).catch(e => { delete DEMP[sp.id]; throw e; }).finally(() => { delete DEMMSG[sp.id]; });
     return DEMP[sp.id];
   }
-  async function fetchDEM(sp) {
-    const key = 'aero.dem2.' + sp.id, saved = store.get(key, null);
-    if (saved && saved.length === N * N) return DEMS[sp.id] = Float32Array.from(saved);
-    const half = (N - 1) / 2, pts = [];
-    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) pts.push(offset(sp.lat, sp.lon, (c - half) * DX, (half - r) * DX));
-    const chunks = []; for (let i = 0; i < pts.length; i += 100) chunks.push(pts.slice(i, i + 100));
-    const out = new Array(chunks.length); let next = 0;
-    async function worker() {
-      while (next < chunks.length) {
-        const k = next++, ch = chunks[k];
-        const j = await getJSON(`https://api.open-meteo.com/v1/elevation?latitude=${ch.map(p => p[0].toFixed(5)).join(',')}&longitude=${ch.map(p => p[1].toFixed(5)).join(',')}`);
-        if (!j.elevation || j.elevation.length !== ch.length) throw new Error('relief incomplet');
-        out[k] = j.elevation;
+  function demSay(sp, msg) { DEMMSG[sp.id] = msg; const f = DEMLISTEN[sp.id]; if (f) f(msg); }
+  function gridPts(sp, n, dx) {
+    const half = (n - 1) / 2, pts = [];
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) pts.push(offset(sp.lat, sp.lon, (c - half) * dx, (half - r) * dx));
+    return pts;
+  }
+  function fillHoles(z, n) {            // -99999 = point non couvert : moyenne des voisins valides
+    let bad = 0; for (let i = 0; i < z.length; i++) if (!(z[i] > -1000 && z[i] < 9000)) { z[i] = NaN; bad++; }
+    if (bad > 0.1 * z.length) throw new Error('relief incomplet');
+    for (let pass = 0; pass < 8 && bad; pass++) {
+      const prev = Float32Array.from(z);
+      for (let i = 0; i < z.length; i++) {
+        if (!isNaN(prev[i])) continue;
+        const r = (i / n) | 0, c = i % n; let sum = 0, k = 0;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+          const rr = r + dr, cc = c + dc; if (rr < 0 || cc < 0 || rr >= n || cc >= n) continue;
+          const v = prev[rr * n + cc]; if (!isNaN(v)) { sum += v; k++; }
+        }
+        if (k) { z[i] = sum / k; bad--; }
       }
     }
-    await Promise.all([worker(), worker(), worker()]);
-    const z = Float32Array.from(out.flat());
-    store.set(key, Array.from(z, v => Math.round(v)));
+    if (bad) throw new Error('relief incomplet');
+    return z;
+  }
+  async function demIGN(sp) {
+    const pts = gridPts(sp, N, DX), CH = 250, out = [];
+    for (let i = 0; i < pts.length; i += CH) {
+      if (S.spot !== sp.id) throw new Error('site changé');
+      const ch = pts.slice(i, i + CH);
+      const url = `${IGN_ALTI}?lon=${ch.map(p => p[1].toFixed(5)).join('|')}&lat=${ch.map(p => p[0].toFixed(5)).join('|')}&resource=ign_rge_alti_wld&delimiter=|&indent=false&measures=false&zonly=true`;
+      let j = null, err = null;
+      for (let t = 0; t < 3 && !j; t++) {
+        try { j = await getJSON(url); } catch (e) { err = e; if (t < 2) await pause(800 * (t + 1)); }
+      }
+      if (!j) throw err;
+      const el = j.elevations;
+      if (!Array.isArray(el) || el.length !== ch.length) throw new Error('réponse IGN inattendue');
+      el.forEach(v => out.push(typeof v === 'number' ? v : (v && typeof v.z === 'number' ? v.z : NaN)));
+      demSay(sp, `Relief IGN : ${out.length} / ${pts.length} points…`);
+      await pause(250);                  // reste sous 5 requêtes par seconde
+    }
+    return fillHoles(Float32Array.from(out), N);
+  }
+  async function demOpenMeteo(sp) {
+    const n = (N + 1) / 2, pts = gridPts(sp, n, 2 * DX), out = [];
+    for (let i = 0; i < pts.length; i += 100) {
+      if (S.spot !== sp.id) throw new Error('site changé');
+      const ch = pts.slice(i, i + 100);
+      const url = `https://api.open-meteo.com/v1/elevation?latitude=${ch.map(p => p[0].toFixed(5)).join(',')}&longitude=${ch.map(p => p[1].toFixed(5)).join(',')}`;
+      let j = null;
+      for (let t = 0; t < 3 && !j; t++) {
+        try { j = await getJSON(url); }
+        catch (e) {
+          if (t === 2) throw e;
+          const limited = /limit|429/i.test(e.message) || e.name === 'TypeError' || t === 1;
+          if (limited) demSay(sp, `Le service météo limite le nombre de requêtes : reprise dans ${Math.round(RATE_WAIT / 1000)} s…`);
+          await pause(limited ? RATE_WAIT : 3000);
+          if (S.spot !== sp.id) throw new Error('site changé');
+        }
+      }
+      if (!j.elevation || j.elevation.length !== ch.length) throw new Error('relief incomplet');
+      out.push(...j.elevation);
+      demSay(sp, `Relief : ${out.length} / ${pts.length} points…`);
+    }
+    const z = new Float32Array(N * N);          // interpolation bilinéaire 17 × 17 → 33 × 33
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const r0 = r >> 1, c0 = c >> 1, r1 = Math.min(r0 + 1, n - 1), c1 = Math.min(c0 + 1, n - 1), fr = (r & 1) / 2, fc = (c & 1) / 2;
+      z[r * N + c] = out[r0 * n + c0] * (1 - fr) * (1 - fc) + out[r0 * n + c1] * (1 - fr) * fc + out[r1 * n + c0] * fr * (1 - fc) + out[r1 * n + c1] * fr * fc;
+    }
+    return fillHoles(z, N);
+  }
+  async function fetchDEM(sp) {
+    const key = 'aero.dem3.' + sp.id, saved = store.get(key, null);
+    if (saved && saved.z && saved.z.length === N * N) { DEMSRC[sp.id] = saved.src; return DEMS[sp.id] = Float32Array.from(saved.z); }
+    let z, src;
+    demSay(sp, 'Chargement du relief IGN…');
+    try { z = await demIGN(sp); src = 'IGN RGE ALTI'; }
+    catch (e) {
+      if (e.message === 'site changé') throw e;
+      demSay(sp, 'Relief IGN indisponible, relief de secours Open-Meteo…');
+      z = await demOpenMeteo(sp); src = 'Copernicus 90 m via Open-Meteo';
+    }
+    store.set(key, { src, z: Array.from(z, v => Math.round(v)) });
+    DEMSRC[sp.id] = src;
     return DEMS[sp.id] = z;
   }
 
@@ -1615,6 +1690,7 @@ if (typeof module !== 'undefined') module.exports = Core;
     const z = map.getZoom(), el = map.getContainer();
     el.classList.toggle('z-lo', z < 10); el.classList.toggle('z-hi', z >= 14);
     renderMarkers(); renderGrid(); showChip();
+    if (z >= ZOOM_RELIEF && TIMES.length && !DEMS[S.spot] && !DEMP[S.spot]) renderTerrain();
   });
   map.on('moveend', showChip);
   map.getContainer().classList.add('z-lo');
@@ -1719,9 +1795,16 @@ if (typeof module !== 'undefined') module.exports = Core;
     const done = (lines, action) => { chipState = lines ? { lines: [head].concat(lines), action } : null; showChip(); };
     if (!d) { if (ds()) ds().textContent = ''; done(null); return; }
     if (!(S.layers.turb || S.layers.lift || S.layers.sun || S.layers.therm)) { if (ds()) ds().textContent = 'Active une couche (rotors, portance, ensoleillement ou thermiques) pour analyser le relief.'; done(null); return; }
+    if (!DEMS[sp.id] && map.getZoom() < ZOOM_RELIEF) {       // relief chargé seulement une fois zoomé sur le site
+      if (ds()) ds().textContent = 'Zoome sur le site pour calculer le relief, les rotors et les thermiques.';
+      done(null); return;
+    }
     let z;
     try {
-      if (!DEMS[sp.id]) { if (ds()) ds().textContent = 'Chargement du relief autour du site…'; done(['Chargement du relief…']); }
+      if (!DEMS[sp.id]) {
+        const onDem = msg => { if (job !== terrainJob) return; if (ds()) ds().textContent = msg; done([esc(msg)]); };
+        DEMLISTEN[sp.id] = onDem; onDem(DEMMSG[sp.id] || 'Chargement du relief…');
+      }
       z = await ensureDEM(sp);
     } catch (e) {
       if (job === terrainJob) { const m = 'Relief indisponible (' + e.message + ') : les couches ne peuvent pas être calculées.'; if (ds()) ds().textContent = m; done([esc(m)], { label: 'Réessayer', fn: renderTerrain }); }
@@ -1743,7 +1826,7 @@ if (typeof module !== 'undefined') module.exports = Core;
     // portance : bleu clair dès 0,4 m/s, bleu franc au-delà de 1,1 m/s (de quoi tenir en l'air)
     if (S.layers.lift) add('lift', i => { const w = T.lift[i]; return w > 0.4 ? (w > 1.1 ? [20, 95, 205, Math.min(225, 120 + 45 * w)] : [90, 160, 235, Math.round(60 + 80 * (w - 0.4))]) : [0, 0, 0, 0]; }, 0.85);
     if (S.layers.turb) add('turb', i => { const t = T.turb[i]; return t > 0.05 ? [Math.round(235 - 70 * t), Math.round(110 - 85 * t), Math.round(70 - 30 * t), Math.round(50 + 140 * t)] : [0, 0, 0, 0]; }, 0.85);
-    const parts = [`Analyse sur 4 × 4 km (maille ${DX} m), vent de ${C.compass16(wFrom)} à ${Math.round(wKmh)} km/h à 50 m.`];
+    const parts = [`Analyse sur 4 × 4 km (relief ${DEMSRC[sp.id] || ''}, maille ${DX} m), vent de ${C.compass16(wFrom)} à ${Math.round(wKmh)} km/h à 50 m.`];
     const lines = []; let action = null;
     const vent = `${C.compass16(wFrom)} ${Math.round(wKmh)} km/h`;
     if (S.layers.turb) {
