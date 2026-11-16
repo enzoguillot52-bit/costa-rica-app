@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aérologie Tarn</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d2422'/%3E%3Cpath d='M8 6v21' stroke='%23f3f0e8' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M9 8l15 2.5v6L9 19z' fill='%23d9541e'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#fbfaf6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#181e1c" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
@@ -707,7 +709,8 @@ select { background: var(--raised); border: 1px solid var(--line); border-radius
 .lh { font-size: 13px; font-weight: 600; padding: 12px 14px 0; display: flex; align-items: baseline; gap: 8px; }
 .lh small { font-weight: 400; color: var(--ink-3); font-size: 11.5px; }
 @media (min-width: 1280px) {
-  .layout { grid-template-columns: 360px 1fr 390px; grid-template-areas: "time map info" "side map info"; }
+  .layout { grid-template-columns: 360px 1fr 390px; grid-template-rows: auto auto 1fr; grid-template-areas: "time map info" "plan map info" "side map info"; }
+  .plan { grid-area: plan; border-right: 1px solid var(--line); max-height: 38vh; overflow: auto; }
   .col1 { display: contents; }
   .info { grid-area: info; overflow: auto; min-height: 0; background: var(--panel); border-left: 1px solid var(--line); border-bottom: 0; }
   .side { grid-area: side; overflow: auto; min-height: 0; background: var(--panel); border-right: 1px solid var(--line); }
@@ -806,7 +809,7 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
 .pin i { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
 .pin em { position: absolute; top: -8px; right: -9px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #1d2422; color: #fff; font: 600 10px/17px var(--mono); font-style: normal; text-align: center; }
 .plbl { position: absolute; left: 38px; top: 7px; white-space: nowrap; font: 600 12px/1.2 var(--sans); color: #1d2422; background: rgba(255,255,255,.92); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.2); pointer-events: none; }
-.leaflet-container:not(.z-hi) .pin:not(.grp):not(.sel) + .plbl { display: none; }
+.leaflet-container:not(.z-15) .pin:not(.grp):not(.sel) + .plbl { display: none; }
 .land { width: 22px; height: 22px; border-radius: 5px; background: #fff; border: 2px solid #1d2422; color: #1d2422; font: 700 11px/18px var(--mono); text-align: center; }
 .garw { position: relative; display: grid; place-items: center; width: 100%; height: 100%; }
 .garw path { stroke: #fff; stroke-width: 1.6; paint-order: stroke; }
@@ -826,6 +829,50 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
 .sw-lift { background: rgba(25,105,210,.7); }
 .sw-sun { background: linear-gradient(90deg, rgba(40,70,130,.6), rgba(255,170,40,.8)); }
 .sw-therm { background: #ffd2b5; border: 2px solid #d9541e; }
+/* Où voler */
+.plan { padding: 2px 8px 8px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.plan .lh { padding: 10px 6px 4px; }
+.prow { width: 100%; display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 10px; padding: 8px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+.prow:hover { background: var(--line-2); }
+.prow .pn b { display: block; font-weight: 600; font-size: 13.5px; }
+.prow small { display: block; color: var(--ink-3); font-size: 11.5px; }
+.prow .pw { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.prow .pw b { font-size: 15px; margin-left: 3px; }
+.prow .pw .arw { vertical-align: -2px; }
+.plan .muted { margin: 6px 8px; }
+/* Graphique de la journée */
+.daychart svg { width: 100%; height: auto; display: block; cursor: pointer; touch-action: manipulation; }
+.daychart .gl { stroke: var(--line); stroke-width: .6; }
+.daychart .yl { font: 500 8.5px var(--mono); fill: var(--ink-3); text-anchor: end; }
+.daychart .xl { font: 500 8.5px var(--mono); fill: var(--ink-3); text-anchor: middle; }
+.daychart .gust { fill: var(--marg); opacity: .2; }
+.daychart .gustl { fill: none; stroke: var(--marg); stroke-width: 1.2; stroke-dasharray: 3 2; }
+.daychart .meanl { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+.daychart .meanp { fill: var(--ink); }
+.daychart .lim { stroke: var(--no); stroke-width: 1.2; stroke-dasharray: 5 3; }
+.daychart .liml { font: 600 8.5px var(--sans); fill: var(--no); text-anchor: end; }
+.daychart .thb { fill: var(--therm); opacity: .8; }
+.daychart .darw { fill: var(--ink-2); }
+.daychart .cur { stroke: var(--ink); stroke-width: 1.5; }
+.detail .chartkey { font-size: 11px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 3px 10px; align-items: center; margin: 4px 0 0; }
+.chartkey span { white-space: nowrap; }
+.chartkey i { display: inline-block; width: 12px; height: 3px; margin-right: 4px; vertical-align: middle; border-radius: 1px; }
+.k-mean { background: var(--ink); } .k-gust { background: var(--marg); } .k-lim { border-top: 2px dashed var(--no); height: 0 !important; }
+.k-th { background: var(--therm); height: 9px !important; width: 7px !important; } .k-sweet { background: var(--ok); opacity: .4; height: 9px !important; }
+/* Plané */
+.glide { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border-left: 4px solid var(--na); background: var(--na-bg); padding: 7px 11px; border-radius: 0 7px 7px 0; }
+.glide b { font-size: 14px; } .glide span { color: var(--ink-2); font-size: 12.5px; }
+.glide.st-ok { border-color: var(--ok); background: var(--ok-bg); } .glide.st-ok b { color: var(--ok); }
+.glide.st-marg { border-color: var(--marg); background: var(--marg-bg); } .glide.st-marg b { color: var(--marg); }
+.glide.st-no { border-color: var(--no); background: var(--no-bg); } .glide.st-no b { color: var(--no); }
+/* Balises en direct */
+.livebox { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); margin-bottom: 6px; }
+.livebox b { font-family: var(--mono); font-size: 16px; }
+.livebox span { font-size: 12.5px; color: var(--ink-2); }
+.livebox .arw { vertical-align: -2px; }
+.livebox small { flex-basis: 100%; color: var(--ink-3); font-size: 11.5px; }
+.live { display: inline-flex; align-items: center; gap: 2px; padding: 3px 6px 3px 4px; border-radius: 11px; background: #1d2422; color: #fff; font: 600 11px/1 var(--mono); box-shadow: 0 1px 3px rgba(0,0,0,.35); border: 1.5px solid #6fd3a0; white-space: nowrap; }
+.live .arw path { fill: #fff; }
 .leaflet-container { font-family: var(--sans); }
 .mapchip { position: absolute; z-index: 800; left: 50%; transform: translateX(-50%); bottom: 26px; width: max-content; max-width: calc(100% - 24px); background: var(--raised); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 7px 11px 8px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 1px 6px rgba(0,0,0,.25); }
 .mapchip span { display: block; }
@@ -859,6 +906,7 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
     <div><h1>Aérologie Tarn</h1><p>Vent, turbulence et thermiques prévus sur les sites de vol</p></div>
   </div>
   <div class="settings">
+    <label>Activité <select id="activity" title="Vol : limites de vol. Gonflage : vent utile pour travailler face voile"><option value="vol">Vol</option><option value="gonflage">Gonflage</option></select></label>
     <label>Niveau <select id="level" title="Règle les limites de vent et de rafales"><option value="debutant">Débutant</option><option value="autonome">Autonome</option><option value="confirme">Confirmé</option></select></label>
     <label>Sol <select id="soil" title="Un sol sec chauffe mieux l’air : thermiques plus forts"><option value="humide">Humide</option><option value="normal">Normal</option><option value="sec">Sec</option></select></label>
   </div>
@@ -872,6 +920,7 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
   </section>
   <div id="map" aria-label="Carte des sites de vol"></div>
   <div class="col1">
+  <section id="plan" class="plan" aria-label="Meilleurs créneaux"></section>
   <aside class="info" aria-label="Site choisi"><div id="detail" class="detail"></div></aside>
   <aside class="side" aria-label="Tous les sites">
     <h2 class="lh">Sites de vol <small>distance depuis Albi</small></h2>
@@ -888,6 +937,14 @@ table.prof th:nth-child(2), table.prof th:nth-child(4) { text-align: right; }
         <p>L’indice sur 10 combine l’écart des rafales, le cisaillement entre 10 et 100 m, la position sous le vent et la force des thermiques. Sur la carte, un point est classé turbulent quand le relief en amont l’abrite du vent (angle d’abri de Winstral, 2002) au-delà d’une distance de 7 à 20 fois la hauteur de l’obstacle selon la force du vent (règle de Pagen), ou quand il se trouve derrière une pente de plus de 15°, où l’écoulement décolle.</p>
         <h4>Ensoleillement</h4>
         <p>Position du soleil (équations de la NOAA), angle du rayonnement direct sur chaque pente et ombres portées par le relief, plus le rayonnement diffus.</p>
+        <h4>Gonflage</h4>
+        <p>En mode Gonflage, l’avis porte sur le travail au sol face voile : vent moyen utile de 6 km/h jusqu’à 20 (débutant), 25 (autonome) ou 30 km/h (confirmé), plage idéale de 10 à 17 km/h pour un débutant, rafales au plus 8 km/h au-dessus du vent moyen (déconseillé au-delà de 12), pente face au vent à 25° près. Des thermiques forts (w* au-delà de 2,2 m/s) rendent le vent irrégulier au sol.</p>
+        <h4>Nuages</h4>
+        <p>Base des cumulus d’après l’écart entre température et point de rosée (formule d’Espy : environ 125 m par degré). Si les thermiques montent plus haut, des cumulus sont attendus et le plafond s’arrête à leur base. Les températures AROME de 20 à 200 m servent à repérer l’inversion du matin.</p>
+        <h4>Plané jusqu’à l’atterrissage</h4>
+        <p>Ligne droite du décollage à l’atterrissage officiel, en gardant 30 m pour l’approche, avec une aile école à 37 km/h et 1,15 m/s de taux de chute (finesse ≈ 9), corrigée du vent à 50 m le long du trajet. Atteignable si la finesse sol dépasse de 25 % la finesse nécessaire.</p>
+        <h4>Balises en direct</h4>
+        <p>Mesures des balises Pioupiou (réseau OpenWindMap) de moins de 3 heures, actualisées toutes les 10 minutes. Les balises FFVL restent accessibles par leurs liens.</p>
         <h4>Relief</h4>
         <p>Altitudes IGN RGE ALTI (service de calcul altimétrique de la Géoplateforme), relevées tous les 125 m sur 4 × 4 km autour du site choisi, puis gardées sur ton téléphone. Si l’IGN ne répond pas, relief de secours Copernicus 90 m via Open-Meteo, en un point sur deux.</p>
         <h4>Thermiques</h4>
@@ -938,7 +995,7 @@ const Core = (() => {
 
   /* ---------- Profil de vent (hauteur sol, composantes u est / v nord en m/s) ---------- */
   function buildProfile(h, i, groundElev) {
-    const fixed = [], pres = [];
+    const fixed = [], pres = [], fixedT = [];
     for (const k in h) {
       let m = k.match(/^wind_speed_(\d+)m$/);
       if (m) {
@@ -947,6 +1004,8 @@ const Core = (() => {
         if (s != null && d != null) fixed.push({ z: +m[1], s: s / KMH, d });
         continue;
       }
+      m = k.match(/^temperature_(\d+)m$/);
+      if (m) { const T = h[k][i]; if (+m[1] > 2 && T != null) fixedT.push({ z: +m[1], T }); continue; }
       m = k.match(/^wind_speed_(\d+)hPa$/);
       if (m) {
         const p = m[1], s = h[k][i];
@@ -959,7 +1018,8 @@ const Core = (() => {
     const topFixed = fixed.length ? fixed[fixed.length - 1].z : 0;
     const lv = fixed.concat(pres.filter(l => l.z > topFixed + 50));
     lv.forEach(l => { l.u = -l.s * Math.sin(l.d * D2R); l.v = -l.s * Math.cos(l.d * D2R); });
-    const temps = pres.filter(l => l.z > 20 && l.T != null).map(l => ({ z: l.z, T: l.T }));
+    const topT = fixedT.reduce((m, l) => Math.max(m, l.z), 0);
+    const temps = fixedT.concat(pres.filter(l => l.z > Math.max(20, topT + 30) && l.T != null).map(l => ({ z: l.z, T: l.T }))).sort((a, b) => a.z - b.z);
     return { lv, temps };
   }
   function windAt(prof, z) {
@@ -1028,7 +1088,8 @@ const Core = (() => {
     if (!(wstar > 0) || !(D > 150)) return null;
     const dz = 25, col = [{ z: o.zs, h: 0, x: 0, y: 0, w: 0, U: 0 }];
     let x = 0, y = 0, su = 0, sv = 0, n = 0, best = 0;
-    for (let z = o.zs + dz; z <= o.zm + 0.9 * D + 1e-6; z += dz) {
+    const zMax = Math.min(o.zm + 0.9 * D, o.capAlt == null ? Infinity : o.capAlt);
+    for (let z = o.zs + dz; z <= zMax + 1e-6; z += dz) {
       const zc = z - dz / 2, hLoc = zc - o.zs;
       const wz = windAt(prof, Math.max(hLoc, zc - o.zg));
       su += wz.u; sv += wz.v; n++;
@@ -1058,6 +1119,9 @@ const Core = (() => {
     confirme: { mean: 30, gust: 36, label: 'Confirmé' }
   };
   const RANK = { ok: 0, marg: 1, na: 1.5, no: 2 };
+  const LEVEL_RANK = { debutant: 0, autonome: 1, confirme: 2 };
+  const levelGate = (spot, level) => spot.minLevel && LEVEL_RANK[level] < LEVEL_RANK[spot.minLevel]
+    ? (spot.minLevel === 'confirme' ? 'Site réservé aux pilotes confirmés' : 'Brevet de pilote exigé sur ce site') : null;
   function rateSpot(spot, wx, level) {
     const L = LIMITS[level] || LIMITS.debutant;
     const maxMean = Math.min(L.mean, spot.vmax || 99), maxGust = Math.min(L.gust, (spot.vmax || 99) + 6);
@@ -1066,6 +1130,7 @@ const Core = (() => {
     const { mean, gust, dir } = wx;
     if (mean == null || dir == null) return { status: 'na', reasons: [{ s: 'na', txt: 'Pas de prévision pour cette heure' }], dev: null };
     const g = gust == null ? mean : gust;
+    const gate = levelGate(spot, level); if (gate) worse('no', gate);
     const why = spot.vmax && spot.vmax < L.mean ? 'limite du site' : 'limite ' + L.label.toLowerCase();
     if (mean > maxMean) worse('no', `Vent trop fort : ${Math.round(mean)} km/h (${why} : ${maxMean})`);
     else if (g > maxGust) worse('no', `Rafales trop fortes : ${Math.round(g)} km/h (${why} : ${maxGust})`);
@@ -1101,6 +1166,62 @@ const Core = (() => {
     const therm = clamp((o.wstar || 0) / 3.5, 0, 1);
     const idx = Math.round(10 * clamp(Math.hypot(mech, therm), 0, 1));
     return { idx, mech, therm, label: idx <= 2 ? 'calme' : idx <= 4 ? 'modérée' : idx <= 6 ? 'agitée' : 'forte' };
+  }
+
+  /* ---------- Base des cumulus (formule d'Espy) : ≈ 125 m par degré d'écart température − point de rosée ---------- */
+  const cumulusBase = (T2, Td) => (T2 == null || Td == null) ? null : Math.max(0, 125 * (T2 - Td));
+
+  /* ---------- Gonflage (face voile, pente école) ----------
+     Plage utile du vent moyen et rafales tolérées selon le niveau ; le travail face voile demande un vent régulier. */
+  const GROUND = {
+    debutant: { min: 6, sweet: [10, 17], max: 20, gust: 24, label: 'Débutant' },
+    autonome: { min: 6, sweet: [12, 21], max: 25, gust: 30, label: 'Autonome' },
+    confirme: { min: 6, sweet: [14, 25], max: 30, gust: 36, label: 'Confirmé' }
+  };
+  function rateGround(spot, wx, level, extra) {
+    const G = GROUND[level] || GROUND.debutant, reasons = []; let st = 'ok';
+    const worse = (s, txt) => { if (RANK[s] > RANK[st]) st = s; reasons.push({ s, txt }); };
+    const { mean, gust, dir } = wx;
+    if (mean == null || dir == null) return { status: 'na', reasons: [{ s: 'na', txt: 'Pas de prévision pour cette heure' }], dev: null };
+    const g = gust == null ? mean : gust, spread = g - mean;
+    const gate = levelGate(spot, level); if (gate) worse('no', gate + ' : gonfle plutôt sur une pente école');
+    if (mean > G.max) worse('no', `Vent trop fort pour gonfler : ${Math.round(mean)} km/h (limite ${G.label.toLowerCase()} : ${G.max})`);
+    else if (g > G.gust) worse('no', `Rafales trop fortes : ${Math.round(g)} km/h (limite ${G.label.toLowerCase()} : ${G.gust})`);
+    else if (mean > G.sweet[1]) worse('marg', `Vent soutenu : ${Math.round(mean)} km/h, l’aile tire fort`);
+    else if (mean < G.min) worse('marg', `Presque pas de vent (${Math.round(mean)} km/h) : il faudra courir, pas de face voile statique`);
+    else if (mean < G.sweet[0]) reasons.push({ s: 'ok', txt: `Vent faible (${Math.round(mean)} km/h) : bien pour reprendre les bases, l’aile retombe vite` });
+    else reasons.push({ s: 'ok', txt: `${Math.round(mean)} km/h : bonne plage pour le face voile` });
+    if (g >= 12 && (spread > 12 || (mean > 1 && g / mean > 1.9))) worse('no', `Rafales irrégulières : +${Math.round(spread)} km/h, l’aile va te surprendre`);
+    else if (g >= 10 && (spread > 8 || (mean > 1 && g / mean > 1.5))) worse('marg', `Vent irrégulier : rafales +${Math.round(spread)} km/h`);
+    let dev = null;
+    if (spot.dirs && spot.dirs.length) {
+      dev = Math.min(...spot.dirs.map(d => angDiff(dir, COMPASS[d])));
+      const avoidHit = (spot.avoid || []).some(d => angDiff(dir, COMPASS[d]) <= 30);
+      if (mean >= 5) {
+        if (avoidHit) worse('no', `Vent de ${compass16(dir)} : secteur déconseillé sur ce site`);
+        else if (dev > 50) worse('no', `Vent de ${compass16(dir)} : la pente n’est pas face au vent (${Math.round(dev)}° d’écart)`);
+        else if (dev > 25) worse('marg', `Vent de ${compass16(dir)} : de travers sur la pente (${Math.round(dev)}°)`);
+        else reasons.push({ s: 'ok', txt: `Vent de ${compass16(dir)} face à la pente` });
+      }
+    } else if (st !== 'no') { st = 'na'; reasons.push({ s: 'na', txt: 'Orientation du site non confirmée' }); }
+    if (spot.autan && mean >= 8 && dir >= 95 && dir <= 175) worse('no', "Vent d'Autan : rabattant et turbulent sur ce versant");
+    const ws = extra && extra.wstar || 0;
+    if (ws > 2.2) worse('marg', `Thermiques forts (${(Math.round(ws * 10) / 10).toString().replace('.', ',')} m/s) : bulles et rafales au sol, garde de la marge`);
+    return { status: st, reasons, dev };
+  }
+
+  /* ---------- Plané jusqu'à l'atterrissage, en ligne droite, à la vitesse bras hauts ----------
+     Finesse sol = (vitesse air + vent arrière) / taux de chute. Aile école : ≈ 37 km/h et 1,15 m/s (finesse ≈ 9). */
+  function glideCheck(from, to, prof, wing) {
+    wing = wing || { trim: 37, sink: 1.15 };
+    if (from.alt == null || to.alt == null) return null;
+    const dy = (to.lat - from.lat) * 111320, dx = (to.lon - from.lon) * 111320 * Math.cos(from.lat * D2R);
+    const dist = Math.hypot(dx, dy), dh = from.alt - to.alt - 30;          // 30 m gardés pour l'approche
+    if (dist < 50 || dh <= 0) return { dist, dh, need: dist / Math.max(dh, 1), have: null, tail: 0, status: dh <= 0 ? 'no' : 'ok' };
+    const brg = Math.atan2(dx, dy), w = windAt(prof, 50);
+    const tail = (w.u * Math.sin(brg) + w.v * Math.cos(brg)) * KMH;       // + vent arrière, − vent de face (km/h)
+    const vg = Math.max(0, wing.trim + tail), have = vg / KMH / wing.sink, need = dist / dh;
+    return { dist, dh, need, have, tail, still: wing.trim / KMH / wing.sink, status: have >= 1.25 * need ? 'ok' : have >= need ? 'marg' : 'no' };
   }
 
   /* ---------- Analyse du relief (grille N×N, ligne 0 au nord, colonne 0 à l'ouest) ---------- */
@@ -1194,7 +1315,7 @@ const Core = (() => {
     return { gx, gy, slope, turb, lift, sun, shade, sources, thr, day };
   }
 
-  return { D2R, R2D, KMH, COMPASS, clamp, angDiff, compass16, sunPos, buildProfile, windAt, vecSpeed, vecFrom, parcelZi, sensibleFlux, wStar, wShape, thermalColumn, tiltDeg, LIMITS, rateSpot, turbIndex, horizonAngle, analyzeTerrain };
+  return { D2R, R2D, KMH, COMPASS, clamp, angDiff, compass16, sunPos, buildProfile, windAt, vecSpeed, vecFrom, parcelZi, sensibleFlux, wStar, wShape, thermalColumn, tiltDeg, cumulusBase, GROUND, rateGround, glideCheck, levelGate, LIMITS, rateSpot, turbIndex, horizonAngle, analyzeTerrain };
 })();
 if (typeof module !== 'undefined') module.exports = Core;
 </script>
@@ -1228,10 +1349,10 @@ if (typeof module !== 'undefined') module.exports = Core;
       dirs: ['NO'], vmin: 12, beacons: [ffvl(91)], land: { lat: 44.0661, lon: 1.9698, alt: 187, name: 'Atterrissage de Cordes' },
       notes: [R46N] },
     { id: 'marnaves', group: 'aveyron', name: 'Marnaves · Roc de Bartou', sub: 'Décollage falaise', type: 'deco', lat: 44.1062, lon: 1.8851, alt: 362,
-      dirs: ['SE', 'S', 'SO'], avoid: ['E'], vmax: 25, vmin: 15, beacons: [ffvl(2068), pp(68)],
+      dirs: ['SE', 'S', 'SO'], avoid: ['E'], vmax: 25, vmin: 15, minLevel: 'autonome', beacons: [ffvl(2068), pp(68)],
       notes: ['Brevet de pilote minimum.', 'Vol interdit par vent d’est ; rotors derrière la falaise.', 'Atterrissage à 600 m du village vers Milhars (200 m de dénivelé) : position à repérer sur place.', R46N] },
     { id: 'riols', group: 'aveyron', name: 'Le Riols', sub: 'Décollage · pilotes confirmés', type: 'deco', lat: 44.1291, lon: 1.9104, alt: 244,
-      dirs: ['NO'], vmax: 20, vmin: 15, beacons: [ffvl(3437)], land: { lat: 44.1295, lon: 1.9079, alt: 143, name: 'Atterrissage du Riols' },
+      dirs: ['NO'], vmax: 20, vmin: 15, minLevel: 'confirme', beacons: [ffvl(3437)], land: { lat: 44.1295, lon: 1.9079, alt: 143, name: 'Atterrissage du Riols' },
       notes: ['Pilotes confirmés, une seule aile à la fois.', 'Ligne électrique à l’est.'] },
     { id: 'capelette', group: 'dourgne', name: 'Dourgne · La Capelette', sub: 'Décollage · Montagne Noire', type: 'deco', lat: 43.4796, lon: 2.1637, alt: 535,
       dirs: ['N', 'NE'], avoid: ['S', 'SO', 'O'], vmax: 28, vmin: 15, autan: true, beacons: [ffvl(3994), ffvl(52)], land: { lat: 43.4763, lon: 2.1324, alt: 270, name: 'Atterrissage de La Montagnarié' },
@@ -1280,6 +1401,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   /* ---------- État ---------- */
   const month = new Date().getMonth();
   const S = {
+    activity: store.get('aero.activity', 'vol'),
     level: store.get('aero.level', 'debutant'),
     soil: store.get('aero.soil', [5, 6, 7, 8].includes(month) ? 'sec' : [3, 4, 9].includes(month) ? 'normal' : 'humide'),
     layers: Object.assign({ grid: true, turb: true, lift: true, sun: false, therm: true }, store.get('aero.layers', {})),
@@ -1392,8 +1514,8 @@ if (typeof module !== 'undefined') module.exports = Core;
     return j;
   }
   const LEVELS = [950, 925, 900, 850, 800, 700];
-  const BASE_VARS = ['temperature_2m', 'precipitation', 'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m', 'shortwave_radiation', 'direct_radiation', 'diffuse_radiation', 'cloud_cover', 'cloud_cover_low', 'cape'];
-  const withHeights = hs => BASE_VARS.concat(...hs.map(h => [`wind_speed_${h}m`, `wind_direction_${h}m`]), ...LEVELS.map(p => [`wind_speed_${p}hPa`, `wind_direction_${p}hPa`, `temperature_${p}hPa`, `geopotential_height_${p}hPa`]));
+  const BASE_VARS = ['temperature_2m', 'dew_point_2m', 'precipitation', 'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m', 'shortwave_radiation', 'direct_radiation', 'diffuse_radiation', 'cloud_cover', 'cloud_cover_low', 'cape'];
+  const withHeights = hs => BASE_VARS.concat(...hs.map(h => [`wind_speed_${h}m`, `wind_direction_${h}m`, `temperature_${h}m`]), ...LEVELS.map(p => [`wind_speed_${p}hPa`, `wind_direction_${p}hPa`, `temperature_${p}hPa`, `geopotential_height_${p}hPa`]));
   const COMMON = '&forecast_days=3&timezone=Europe%2FParis&timeformat=unixtime&wind_speed_unit=kmh';
   async function fetchVars(lats, lons, vars, model) {
     let v = vars.slice();
@@ -1566,7 +1688,7 @@ if (typeof module !== 'undefined') module.exports = Core;
 
   /* ---------- Calculs par spot et par heure ---------- */
   function derive(sp, i) {
-    const key = sp.id + '|' + i + '|' + S.soil + '|' + S.level; if (cache.has(key)) return cache.get(key);
+    const key = sp.id + '|' + i + '|' + S.soil + '|' + S.level + '|' + S.activity; if (cache.has(key)) return cache.get(key);
     const w = WX[sp.id]; if (!w) return null;
     const h = w.h, v = n => (h[n] ? h[n][i] : null), zg = w.elev;
     const mean = v('wind_speed_10m'), gust = v('wind_gusts_10m'), dir = v('wind_direction_10m'), T2 = v('temperature_2m'), rain = v('precipitation'), cape = v('cape');
@@ -1580,7 +1702,10 @@ if (typeof module !== 'undefined') module.exports = Core;
     const day = sun.elev > 5 && sw > 40, H = day ? C.sensibleFlux(sw, S.soil) : 0;
     const wstar = day && zi ? C.wStar(H, zi, T2) : 0;
     const a = C.windAt(prof, 10), b = C.windAt(prof, 100), shear = Math.hypot(b.u - a.u, b.v - a.v) * C.KMH;
-    const rating = C.rateSpot(sp, { mean, gust, dir }, S.level);
+    const Td = v('dew_point_2m'), cb = C.cumulusBase(T2, Td);
+    const cumulus = cb != null && zi != null && day && cb < zi;           // les thermiques montent jusqu'à la condensation
+    const capAlt = cumulus ? zg + cb : null;
+    const rating = S.activity === 'gonflage' ? C.rateGround(sp, { mean, gust, dir }, S.level, { wstar }) : C.rateSpot(sp, { mean, gust, dir }, S.level);
     const up = (s, txt) => { rating.reasons.push({ s, txt }); if (RANK[s] > RANK[rating.status]) rating.status = s; };
     if (mean != null) {
       if (sunNow.elev < -0.8) up('no', 'Il fait nuit à cette heure');
@@ -1589,9 +1714,9 @@ if (typeof module !== 'undefined') module.exports = Core;
     }
     const lee = rating.dev != null && rating.dev > 110 && (mean || 0) >= 5;
     const turb = C.turbIndex({ mean: mean || 0, gust, shear, lee, wstar });
-    const col = wstar > 0 && zi ? C.thermalColumn(prof, wstar, { zs: zg, zg, ziAlt: zg + zi, zm: zg, sink: SINK }) : null;
-    const colAir = day && wstar > 0.3 && zi ? C.thermalColumn(prof, wstar, { zs: zg, zg, ziAlt: zg + zi, zm: zg, sink: 0 }) : null;
-    const o = { mean, gust, dir, T2, rain, cape, prof, t, zg, sun, sw, direct, diffuse, zi, ziSrc, blh, day, H, wstar, shear, rating, turb, col, colAir, cloud: v('cloud_cover') };
+    const col = wstar > 0 && zi ? C.thermalColumn(prof, wstar, { zs: zg, zg, ziAlt: zg + zi, zm: zg, sink: SINK, capAlt }) : null;
+    const colAir = day && wstar > 0.3 && zi ? C.thermalColumn(prof, wstar, { zs: zg, zg, ziAlt: zg + zi, zm: zg, sink: 0, capAlt }) : null;
+    const o = { mean, gust, dir, T2, rain, cape, prof, t, zg, sun, sw, direct, diffuse, zi, ziSrc, blh, day, H, wstar, shear, rating, turb, col, colAir, cloud: v('cloud_cover'), Td, cb, cumulus, capAlt };
     cache.set(key, o); return o;
   }
 
@@ -1627,7 +1752,7 @@ if (typeof module !== 'undefined') module.exports = Core;
       $('#timelabel').innerHTML = `<b>${esc(d)}</b> ${fmtHour.format(new Date(t * 1000))}`;
       document.querySelectorAll('#days button').forEach(b => b.classList.toggle('on', dayOf(TIMES[+b.dataset.i]) === d));
     }
-    renderList(); renderMarkers(); renderGrid(); renderDetail(); renderTerrain();
+    renderPlan(); renderList(); renderMarkers(); renderGrid(); renderLive(); renderDetail(); renderTerrain();
   }
   function renderList() {
     $('#list').innerHTML = SPOTS.map(sp => {
@@ -1688,7 +1813,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
   map.on('zoomend', () => {
     const z = map.getZoom(), el = map.getContainer();
-    el.classList.toggle('z-lo', z < 10); el.classList.toggle('z-hi', z >= 14);
+    el.classList.toggle('z-lo', z < 10); el.classList.toggle('z-hi', z >= 14); el.classList.toggle('z-15', z >= 15);
     renderMarkers(); renderGrid(); showChip();
     if (z >= ZOOM_RELIEF && TIMES.length && !DEMS[S.spot] && !DEMP[S.spot]) renderTerrain();
   });
@@ -1697,12 +1822,13 @@ if (typeof module !== 'undefined') module.exports = Core;
   const siteBox = sp => { const h = (N - 1) / 2 + 0.5; return L.latLngBounds(offset(sp.lat, sp.lon, -h * DX, -h * DX), offset(sp.lat, sp.lon, h * DX, h * DX)); };
   function selectSpot(id, fly) {
     S.spot = id; store.set('aero.spot', id);
+    try { history.replaceState(null, '', '#' + id); } catch (e) { }
     const sp = SPOTS.find(s => s.id === id);
     // cadre tout le carré analysé (4 km) : rotors et thermiques restent à l'écran, même sur téléphone
     if (fly || map.getZoom() < LOWZ) map.flyToBounds(siteBox(sp), { padding: [8, 8], maxZoom: 15, duration: 0.8 });
     renderAll();
     if (window.matchMedia('(max-width: 820px)').matches) { if (fly) $('#map').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    else { const c = $('.col1'); (getComputedStyle(c).display === 'contents' ? $('.info') : c).scrollTo({ top: 0, behavior: 'smooth' }); }
+    else { const c = $('.col1'); if (getComputedStyle(c).display === 'contents') $('.info').scrollTo({ top: 0, behavior: 'smooth' }); else $('.info').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   }
 
   function profileRows(d, sp) {
@@ -1732,7 +1858,7 @@ if (typeof module !== 'undefined') module.exports = Core;
         <div><b>${n0(r10(mid))} m</b><small>décalage au plafond</small></div></div>
       <p><b>${force}.</b> Ils sont ${tl} (${Math.round(tilt)}° par rapport à la verticale). Au plafond, le thermique est à <b>${n0(r10(mid))} m de son point de départ, ${toward(c.driftTo)}</b> : entre ${n0(r10(K_LO * c.drift))} et ${n0(r10(K_HI * c.drift))} m selon le modèle de dérive.</p>
       <p>${recenterTip(c)}</p>
-      <p class="muted">Sommet de la couche convective vers ${n0(r10(d.zg + d.zi))} m (${d.ziSrc})${d.blh != null && !String(d.ziSrc).startsWith('modèle') ? `, ${wxInfo.blh} : ${n0(r10(d.zg + d.blh))} m` : ''}. Flux de chaleur au sol : ${Math.round(d.H)} W/m² (sol ${S.soil}).</p>` + bestP;
+      <p class="muted">Sommet de la couche convective vers ${n0(r10(d.zg + d.zi))} m (${d.ziSrc})${d.blh != null && !String(d.ziSrc).startsWith('modèle') ? `, ${wxInfo.blh} : ${n0(r10(d.zg + d.blh))} m` : ''}. Flux de chaleur au sol : ${Math.round(d.H)} W/m² (sol ${S.soil}).</p>${cloudHTML(d)}` + bestP;
   }
   function renderDetail() {
     const sp = SPOTS.find(s => s.id === S.spot), el = $('#detail');
@@ -1747,22 +1873,165 @@ if (typeof module !== 'undefined') module.exports = Core;
     TIMES.forEach((t, i) => { const hh = hourOf(t); if (hh < 7 || hh > 20) return; (byDay[shortDay(t)] = byDay[shortDay(t)] || []).push(i); });
     const strip = Object.entries(byDay).map(([k, idx]) => `<div class="srow"><span>${esc(k)}</span>${idx.map(i => { const x = derive(sp, i); return `<button type="button" class="cell st-${x.rating.status} ${i === S.hour ? 'cur' : ''}" data-i="${i}" title="${hourOf(TIMES[i])} h · ${ST[x.rating.status]}${x.mean != null ? ' · ' + Math.round(x.mean) + ' km/h' : ''}">${hourOf(TIMES[i])}</button>`; }).join('')}</div>`).join('');
     el.innerHTML = head + `
-      <div class="verdict st-${st}"><b>${ST[st]}</b><span>pour un pilote ${C.LIMITS[S.level].label.toLowerCase()} · ${fmtHour.format(new Date(d.t * 1000))}</span></div>
+      <div class="verdict st-${st}"><b>${ST[st]}</b><span>${S.activity === 'gonflage' ? 'pour du gonflage, niveau ' : 'pour un pilote '}${C.LIMITS[S.level].label.toLowerCase()} · ${fmtHour.format(new Date(d.t * 1000))}</span></div>
       <ul class="reasons">${d.rating.reasons.map(r => `<li class="st-${r.s}">${esc(r.txt)}</li>`).join('')}</ul>
       <div class="kv">
         <div><b>${d.mean == null ? '–' : Math.round(d.mean)} km/h</b><small>vent à 10 m${d.dir == null ? '' : ', de ' + C.compass16(d.dir)}</small></div>
         <div><b>${d.gust == null ? '–' : Math.round(d.gust)} km/h</b><small>rafales</small></div>
         <div><b>${d.turb.idx}/10</b><small>turbulence ${d.turb.label}</small></div>
         <div><b>${d.cloud == null ? '–' : Math.round(d.cloud) + ' %'}</b><small>nuages${d.rain ? ' · ' + f1(d.rain) + ' mm/h' : ''}</small></div></div>
-      <h3>Heure par heure</h3><div class="strip">${strip}</div>
+      <h3>Journée du ${esc(shortDay(d.t).toLowerCase())}</h3>${dayChart(sp)}
+      <h3>Les trois jours</h3><div class="strip">${strip}</div>
       <h3>Vent en altitude</h3><table class="prof"><thead><tr><th>Hauteur sol</th><th>Altitude</th><th>Direction</th><th>Force</th></tr></thead><tbody>${profileRows(d, sp)}</tbody></table>
       <p class="muted">Cisaillement entre 10 et 100 m : ${Math.round(d.shear)} km/h.</p>
       <h3>Thermiques</h3>${thermalHTML(d, sp)}
       <h3>Relief autour du site</h3><p id="demstate" class="muted"></p>
-      <h3>Vent en direct</h3>${beacons}
+      ${S.activity === 'vol' ? glideHTML(sp, d) : ''}
+      <h3>Vent en direct</h3><div id="livebox">${liveHTML(sp)}</div>${beacons}
       <h3>À savoir sur le site</h3>${notes}`;
     el.querySelector('.strip').onclick = e => { const b = e.target.closest('.cell'); if (b) setHour(+b.dataset.i); };
+    const ch = el.querySelector('.daychart svg');
+    if (ch) ch.addEventListener('click', e => {
+      const r = ch.getBoundingClientRect(), idx = JSON.parse(ch.dataset.idx), vb = ch.viewBox.baseVal;
+      const x = (e.clientX - r.left) / r.width * vb.width, k = Math.floor((x - CH.x0) / ((CH.x1 - CH.x0) / idx.length));
+      if (k >= 0 && k < idx.length) setHour(idx[k]);
+    });
     el.querySelectorAll('.jump').forEach(b => b.onclick = () => setHour(+b.dataset.i));
+  }
+
+  /* ---------- Nuages ---------- */
+  function cloudHTML(d) {
+    if (d.cb == null || !d.day) return '';
+    if (d.cumulus) return `<p><b>Cumulus probables, base vers ${n0(r10(d.zg + d.cb))} m.</b> Les thermiques montent jusqu’aux nuages : le plafond s’arrête sous leur base.</p>`;
+    return `<p class="muted">Pas de cumulus attendus : l’air chaud n’atteint pas la condensation (base théorique ${n0(r10(d.zg + d.cb))} m). Thermiques « bleus », sans nuage pour les repérer.</p>`;
+  }
+
+  /* ---------- Où voler : meilleurs créneaux du jour choisi ---------- */
+  function planRows() {
+    if (!TIMES.length) return { rows: [], idx: [] };
+    const day = dayOf(TIMES[S.hour]), now = Date.now() / 1000;
+    const idx = TIMES.map((t, i) => i).filter(i => dayOf(TIMES[i]) === day && hourOf(TIMES[i]) >= 8 && hourOf(TIMES[i]) <= 19 && TIMES[i] >= now - 3600);
+    const lvl = st => st === 'ok' ? 2 : st === 'marg' ? 1 : 0, rows = [];
+    for (const sp of SPOTS) {
+      let best = null;
+      for (const need of [2, 1]) {
+        let run = null;
+        const close = () => { if (run && (!best || run.length > best.length)) best = run; run = null; };
+        for (const i of idx) { if (lvl(derive(sp, i).rating.status) >= need) (run = run || []).push(i); else close(); }
+        close();
+        if (best) { best.need = need; break; }
+      }
+      if (!best) continue;
+      const xs = best.map(i => derive(sp, i)).filter(x => x.mean != null);
+      if (!xs.length) continue;
+      const mean = xs.reduce((a, x) => a + x.mean, 0) / xs.length;
+      const dir = (Math.atan2(xs.reduce((a, x) => a + Math.sin(x.dir * C.D2R), 0), xs.reduce((a, x) => a + Math.cos(x.dir * C.D2R), 0)) * C.R2D + 360) % 360;
+      const climb = Math.max(0, ...xs.map(x => x.col && x.col.usable ? x.col.climbMax : 0));
+      const gonf = S.activity === 'gonflage', sweet = C.GROUND[S.level].sweet;
+      const score = best.need * 100 + best.length * 10 + (gonf ? (sp.type === 'ecole' ? 15 : 0) + (mean >= sweet[0] && mean <= sweet[1] ? 8 : 0) : climb * 8) - sp.dist / 10;
+      rows.push({ sp, run: best, need: best.need, mean, dir, climb, score, pick: best[Math.floor(best.length / 2)] });
+    }
+    rows.sort((a, b) => b.score - a.score);
+    const top = rows.filter(r => r.need === 2).slice(0, 3);
+    if (top.length < 3) top.push(...rows.filter(r => r.need === 1).slice(0, 3 - top.length));
+    return { rows: top, idx };
+  }
+  function renderPlan() {
+    const el = $('#plan'); if (!el) return;
+    if (!TIMES.length) { el.innerHTML = ''; return; }
+    const { rows, idx } = planRows(), gonf = S.activity === 'gonflage';
+    const day = shortDay(TIMES[S.hour]).toLowerCase(), title = `${gonf ? 'Où gonfler' : 'Où voler'} ${day}`;
+    let body;
+    if (!idx.length) body = `<p class="muted">Plus de créneau de jour pour cette date : choisis un autre jour en haut.</p>`;
+    else if (!rows.length) body = `<p class="muted">Aucun créneau, même limite, pour ton niveau ce jour-là. Regarde les autres jours.</p>`;
+    else body = rows.map(r => {
+      const h0 = hourOf(TIMES[r.run[0]]), h1 = hourOf(TIMES[r.run[r.run.length - 1]]) + 1;
+      const extra = gonf ? (r.sp.type === 'ecole' ? 'pente école' : 'au déco')
+        : r.climb > 0.05 ? `thermiques +${f1(r.climb)} m/s` : 'pas de thermique exploitable';
+      return `<button type="button" class="prow" data-id="${r.sp.id}" data-i="${r.pick}">
+        <span class="dot st-${r.need === 2 ? 'ok' : 'marg'}"></span>
+        <span class="pn"><b>${esc(r.sp.name)}</b><small>${h0} h → ${h1} h${r.need === 2 ? '' : ' · limite'} · ${extra}</small></span>
+        <span class="pw">${arrow(r.dir, 14)}<b>${Math.round(r.mean)}</b><small>${C.compass16(r.dir)}</small></span></button>`;
+    }).join('') + (rows.every(r => r.need === 1) ? `<p class="muted">Rien de franchement favorable : ces créneaux sont limites pour ton niveau.</p>` : '');
+    el.innerHTML = `<h2 class="lh">${esc(title)} <small>${C.LIMITS[S.level].label.toLowerCase()}</small></h2>${body}`;
+    el.querySelectorAll('.prow').forEach(b => b.onclick = () => { S.hour = +b.dataset.i; $('#slider').value = S.hour; selectSpot(b.dataset.id, true); });
+  }
+
+  /* ---------- Graphique de la journée ---------- */
+  const CH = { w: 340, h: 156, x0: 28, x1: 334, y0: 22, y1: 118 };
+  function dayChart(sp) {
+    const day = dayOf(TIMES[S.hour]);
+    const idx = TIMES.map((t, i) => i).filter(i => dayOf(TIMES[i]) === day && hourOf(TIMES[i]) >= 7 && hourOf(TIMES[i]) <= 20);
+    if (idx.length < 2) return '';
+    const xs = idx.map(i => derive(sp, i)), gonf = S.activity === 'gonflage';
+    const lim = gonf ? C.GROUND[S.level].max : Math.min(C.LIMITS[S.level].mean, sp.vmax || 99);
+    const top = Math.max(30, lim + 5, ...xs.map(x => (x.gust == null ? x.mean : x.gust) || 0)) + 4;
+    const ymax = Math.ceil(top / 10) * 10, W = (CH.x1 - CH.x0) / idx.length;
+    const X = k => CH.x0 + (k + 0.5) * W, Y = v => CH.y1 - v / ymax * (CH.y1 - CH.y0);
+    const tint = { ok: 'var(--ok)', marg: 'var(--marg)', no: 'var(--no)', na: 'transparent' };
+    let g = '';
+    xs.forEach((x, k) => { g += `<rect x="${(CH.x0 + k * W).toFixed(1)}" y="${CH.y0}" width="${W.toFixed(1)}" height="${CH.y1 - CH.y0}" style="fill:${tint[x.rating.status]}" opacity=".13"/>`; });
+    if (gonf) { const sw = C.GROUND[S.level].sweet; g += `<rect x="${CH.x0}" y="${Y(sw[1]).toFixed(1)}" width="${CH.x1 - CH.x0}" height="${(Y(sw[0]) - Y(sw[1])).toFixed(1)}" style="fill:var(--ok)" opacity=".12"/>`; }
+    for (let v = 0; v <= ymax; v += 10) g += `<line x1="${CH.x0}" x2="${CH.x1}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="gl"/><text x="${CH.x0 - 4}" y="${(Y(v) + 3.5).toFixed(1)}" class="yl">${v}</text>`;
+    const pts = xs.map((x, k) => x.mean == null ? null : [X(k), Y(x.mean), Y(x.gust == null ? x.mean : x.gust)]).filter(Boolean);
+    if (pts.length > 1) {
+      g += `<polygon points="${pts.map(p => p[0].toFixed(1) + ',' + p[2].toFixed(1)).concat(pts.slice().reverse().map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1))).join(' ')}" class="gust"/>`;
+      g += `<polyline points="${pts.map(p => p[0].toFixed(1) + ',' + p[2].toFixed(1)).join(' ')}" class="gustl"/>`;
+      g += `<polyline points="${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}" class="meanl"/>`;
+      pts.forEach(p => { g += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.2" class="meanp"/>`; });
+    }
+    g += `<line x1="${CH.x0}" x2="${CH.x1}" y1="${Y(lim).toFixed(1)}" y2="${Y(lim).toFixed(1)}" class="lim"/><text x="${CH.x1 - 2}" y="${(Y(lim) - 3).toFixed(1)}" class="liml">limite ${lim}</text>`;
+    if (!gonf) xs.forEach((x, k) => { const c = x.col && x.col.usable ? x.col.climbMax : 0; if (c > 0.05) { const hb = Math.min(1, c / 3) * 22; g += `<rect x="${(X(k) - W * 0.28).toFixed(1)}" y="${(CH.y1 - hb).toFixed(1)}" width="${(W * 0.56).toFixed(1)}" height="${hb.toFixed(1)}" class="thb"/>`; } });
+    xs.forEach((x, k) => { if (x.dir != null && (idx.length <= 9 || k % 2 === 0)) g += `<g transform="translate(${X(k).toFixed(1)},11) rotate(${((x.dir + 180) % 360).toFixed(0)})"><path d="M0,-6 L4,5 L0,2.5 L-4,5 Z" class="darw"/></g>`; });
+    xs.forEach((x, k) => { if (k % 2 === 0) g += `<text x="${X(k).toFixed(1)}" y="${CH.y1 + 13}" class="xl">${hourOf(TIMES[idx[k]])} h</text>`; });
+    const cur = idx.indexOf(S.hour);
+    if (cur >= 0) g += `<line x1="${X(cur).toFixed(1)}" x2="${X(cur).toFixed(1)}" y1="${CH.y0 - 2}" y2="${CH.y1}" class="cur"/>`;
+    const key = gonf ? '<i class="k-sweet"></i>plage idéale' : '<i class="k-th"></i>montée en thermique';
+    return `<div class="daychart"><svg viewBox="0 0 ${CH.w} ${CH.h}" role="img" aria-label="Vent et rafales de la journée" data-idx="${JSON.stringify(idx)}">${g}</svg>
+      <p class="chartkey"><span><i class="k-mean"></i>vent moyen</span><span><i class="k-gust"></i>rafales</span><span><i class="k-lim"></i>limite ${gonf ? 'gonflage' : 'vol'}</span><span>${key}</span><span>touche le graphique pour changer d’heure</span></p></div>`;
+  }
+
+  /* ---------- Plané jusqu'à l'atterrissage ---------- */
+  function glideHTML(sp, d) {
+    if (!sp.land || sp.alt == null) return '';
+    const g = C.glideCheck({ lat: sp.lat, lon: sp.lon, alt: sp.alt }, sp.land, d.prof);
+    if (!g || g.have == null) return '';
+    const head = { ok: 'Atteignable en ligne droite', marg: 'Juste, sans marge', no: 'Pas atteignable en ligne droite' }[g.status];
+    const wind = Math.abs(g.tail) < 2 ? 'sans vent notable' : g.tail < 0 ? `avec ${Math.round(-g.tail)} km/h de vent de face` : `avec ${Math.round(g.tail)} km/h de vent arrière`;
+    const advice = g.status === 'ok' ? '' : g.status === 'marg' ? ' Pars avec de la hauteur ou accélère peu : la moindre descendance te fait poser avant.' : ' Il faut d’abord prendre de la hauteur (dynamique ou thermique), ou repérer un terrain de secours plus proche avant de décoller.';
+    return `<h3>Plané jusqu’à l’atterrissage</h3>
+      <div class="glide st-${g.status}"><b>${head}</b><span>finesse ${f1(g.need)} nécessaire, ≈ ${f1(g.have)} disponible</span></div>
+      <p>${esc(sp.land.name)} à ${f1(g.dist / 1000)} km, ${Math.round(g.dh + 30)} m plus bas (30 m gardés pour l’approche). Une aile école plane ≈ ${f1(g.still)} sans vent ; ${wind}, elle plane ≈ ${f1(g.have)} par rapport au sol.${advice}</p>`;
+  }
+
+  /* ---------- Balises Pioupiou en direct ---------- */
+  let LIVE = [];
+  const gLive = L.layerGroup().addTo(map);
+  async function loadLive() {
+    try {
+      const j = await getJSON('https://api.pioupiou.fr/v1/live/all'), now = Date.now();
+      const arr = Array.isArray(j.data) ? j.data : [];
+      LIVE = arr.map(x => ({ id: x.id, name: x.meta && x.meta.name, lat: x.location && x.location.latitude, lon: x.location && x.location.longitude, m: x.measurements || {} }))
+        .filter(x => x.lat > 43.2 && x.lat < 44.4 && x.lon > 1.4 && x.lon < 3.1 && x.m.date && x.m.wind_speed_avg != null && now - Date.parse(x.m.date) < 3 * 3600e3)
+        .map(x => ({ id: x.id, name: x.name, lat: x.lat, lon: x.lon, t: Date.parse(x.m.date), dir: x.m.wind_heading, avg: x.m.wind_speed_avg, max: x.m.wind_speed_max }));
+      if (LIVE.length && !loadLive.attr) { map.attributionControl.addAttribution('Balises © contributeurs du réseau <a href="https://www.openwindmap.org/">Pioupiou</a>'); loadLive.attr = true; }
+    } catch (e) { LIVE = []; }
+    renderLive(); const box = $('#livebox'); if (box) box.innerHTML = liveHTML(SPOTS.find(s => s.id === S.spot));
+  }
+  const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'à l’instant' : m < 60 ? `il y a ${m} min` : `il y a ${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`; };
+  function renderLive() {
+    gLive.clearLayers();
+    LIVE.forEach(b => {
+      const html = `<div class="live">${b.dir != null ? arrow(b.dir, 14) : ''}<span>${Math.round(b.avg)}</span></div>`;
+      L.marker([b.lat, b.lon], { icon: L.divIcon({ className: 'pinwrap', html, iconSize: [40, 22], iconAnchor: [20, 11] }), zIndexOffset: 500 })
+        .bindTooltip(`<b>Balise ${esc(b.name || 'Pioupiou ' + b.id)}</b><br>${Math.round(b.avg)} km/h${b.max != null ? ', rafales ' + Math.round(b.max) : ''}${b.dir != null ? ', de ' + C.compass16(b.dir) : ''}<br>${ago(b.t)}`, { direction: 'top', offset: [0, -10] }).addTo(gLive);
+    });
+  }
+  function liveHTML(sp) {
+    if (!sp) return '';
+    const near = LIVE.map(b => Object.assign({ km: km([sp.lat, sp.lon], [b.lat, b.lon]) }, b)).filter(b => b.km <= 15).sort((a, b) => a.km - b.km).slice(0, 2);
+    if (!near.length) return LIVE.length ? '<p class="muted">Pas de balise Pioupiou à moins de 15 km.</p>' : '';
+    return near.map(b => `<div class="livebox"><b>${Math.round(b.avg)} km/h</b>${b.max != null ? `<span>rafales ${Math.round(b.max)}</span>` : ''}${b.dir != null ? `<span>${arrow(b.dir, 13)} de ${C.compass16(b.dir)}</span>` : ''}<small>${esc(b.name || 'Pioupiou ' + b.id)}, à ${f1(b.km)} km · ${ago(b.t)}</small></div>`).join('');
   }
 
   /* ---------- Couches de relief autour du site choisi ---------- */
@@ -1851,7 +2120,7 @@ if (typeof module !== 'undefined') module.exports = Core;
         const ll = offset(sp.lat, sp.lon, (s.c - half) * DX, (half - s.r) * DX);
         const gain = C.clamp((s.meanHeat || flat) / flat, 0.6, 2);          // pentes au soleil : plus de chauffe que le plat
         const wl = d.wstar * Math.cbrt(gain);
-        const base = { zs: s.z, zg: d.zg, ziAlt: d.zg + d.zi, zm: zmean };
+        const base = { zs: s.z, zg: d.zg, ziAlt: d.zg + d.zi, zm: zmean, capAlt: d.capAlt };
         const cm = C.thermalColumn(d.prof, wl, Object.assign({ sink: SINK }, base));
         const o = { pane: 'thermPane', renderer: thermR };
         if (cm && cm.usable) {
@@ -1873,12 +2142,14 @@ if (typeof module !== 'undefined') module.exports = Core;
           const ca = C.thermalColumn(d.prof, wl, Object.assign({ sink: 0 }, base));
           if (!ca || ca.col.length < 3) return;
           weak++;
-          const mid = ca.col.map(p => offset(ll[0], ll[1], K_MID * p.x, K_MID * p.y));
+          const keep = ca.col.filter(p => K_MID * Math.hypot(p.x, p.y) <= 1500), torn = keep.length < ca.col.length;
+          const mid = keep.map(p => offset(ll[0], ll[1], K_MID * p.x, K_MID * p.y));
+          if (mid.length < 3) { weak--; return; }
           L.polyline(mid, Object.assign({ color: '#fff', weight: 5, opacity: 0.7, interactive: false }, o)).addTo(gTherm);
           L.polyline(mid, Object.assign({ color: '#c0703f', weight: 2.5, dashArray: '6 6', className: 'th-weak' }, o)).bindTooltip('Thermique trop faible pour monter : trajet de l’air chaud dans le vent').addTo(gTherm);
           L.circleMarker(ll, Object.assign({ radius: 5 + 4 * s.rel, color: '#8a4a22', weight: 1.5, dashArray: '2 3', fillColor: '#f3c7a6', fillOpacity: 0.9 }, o))
             .bindPopup(`<b>Thermique trop faible pour monter</b><br>Départ probable vers ${n0(r10(s.z))} m. L’air y monte à ${f1(wl)} m/s au mieux, ton aile chute à ${f1(SINK)} m/s en virage.<br>Au sommet de la couche (≈ ${n0(r10(ca.top))} m), l’air est décalé d’environ <b>${n0(r10(K_MID * ca.drift))} m ${toward(ca.driftTo)}</b>.`).addTo(gTherm);
-          L.marker(mid[mid.length - 1], { pane: 'thermPane', interactive: false, keyboard: false, icon: L.divIcon({ className: 'pinwrap', html: `<span class="tlbl weak">faible</span>`, iconSize: [0, 0] }) }).addTo(gTherm);
+          L.marker(mid[mid.length - 1], { pane: 'thermPane', interactive: false, keyboard: false, icon: L.divIcon({ className: 'pinwrap', html: `<span class="tlbl weak">${torn ? 'faible, couché' : 'faible'}</span>`, iconSize: [0, 0] }) }).addTo(gTherm);
         }
       });
       if (strong) {
@@ -1898,13 +2169,19 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
 
   /* ---------- Réglages ---------- */
+  const ac = $('#activity'); ac.value = S.activity;
+  ac.onchange = () => { S.activity = ac.value; store.set('aero.activity', S.activity); cache.clear(); renderAll(); };
   const lv = $('#level'), so = $('#soil'); lv.value = S.level; so.value = S.soil;
   lv.onchange = () => { S.level = lv.value; store.set('aero.level', S.level); cache.clear(); renderAll(); };
   so.onchange = () => { S.soil = so.value; store.set('aero.soil', S.soil); cache.clear(); renderAll(); };
   map.fitBounds(L.latLngBounds(SPOTS.map(s => [s.lat, s.lon])).pad(0.12));
+  const hashSpot = decodeURIComponent((location.hash || '').slice(1));
+  if (SPOTS.some(x => x.id === hashSpot)) S.spot = hashSpot;
   renderAll();
-  loadWeather();
-  window.__aero = { S, SPOTS, WX, derive, setHour, selectSpot, map, siteBox };
+  loadWeather().then(() => { if (SPOTS.some(x => x.id === hashSpot)) selectSpot(hashSpot, true); });
+  loadLive();
+  setInterval(() => { if (document.visibilityState === 'visible') loadLive(); }, 10 * 60 * 1000);
+  window.__aero = { S, SPOTS, WX, derive, setHour, selectSpot, map, siteBox, LIVE: () => LIVE, planRows };
 })();
 </script>
 </body>

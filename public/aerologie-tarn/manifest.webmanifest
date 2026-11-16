@@ -1,0 +1,29 @@
+{
+ "name": "Aérologie Tarn",
+ "short_name": "Aérologie",
+ "description": "Vent, turbulence et thermiques prévus sur les sites de vol libre du Tarn",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "lang": "fr",
+ "background_color": "#f3f0e8",
+ "theme_color": "#1d2422",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512-maskable.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
