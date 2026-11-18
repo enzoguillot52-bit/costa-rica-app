@@ -1383,7 +1383,7 @@ if (typeof module !== 'undefined') module.exports = Core;
       dirs: ['NO'], vmin: 12, beacons: [ffvl(91)], land: { lat: 44.0661, lon: 1.9698, alt: 187, name: 'Atterrissage de Cordes' },
       notes: [R46N] },
     { id: 'marnaves', group: 'aveyron', name: 'Marnaves · Roc de Bartou', sub: 'Décollage falaise', type: 'deco', lat: 44.1062, lon: 1.8851, alt: 362,
-      dirs: ['SE', 'S', 'SO'], avoid: ['E'], vmax: 25, vmin: 15, minLevel: 'autonome', beacons: [ffvl(2068), pp(68)],
+      dirs: ['SE', 'S', 'SO'], avoid: ['E'], vmax: 25, vmin: 15, minLevel: 'autonome', beacons: [ffvl(2068)],
       notes: ['Brevet de pilote minimum.', 'Vol interdit par vent d’est ; rotors derrière la falaise.', 'Atterrissage à 600 m du village vers Milhars (200 m de dénivelé) : position à repérer sur place.', R46N] },
     { id: 'riols', group: 'aveyron', name: 'Le Riols', sub: 'Décollage · pilotes confirmés', type: 'deco', lat: 44.1291, lon: 1.9104, alt: 244,
       dirs: ['NO'], vmax: 20, vmin: 15, minLevel: 'confirme', beacons: [ffvl(3437)], land: { lat: 44.1295, lon: 1.9079, alt: 143, name: 'Atterrissage du Riols' },
@@ -1754,6 +1754,24 @@ if (typeof module !== 'undefined') module.exports = Core;
         else if (cbase < need) up('marg', `Plafond bas : nuages vers ${n0(r10(cbase))} m au-dessus du déco, marge faible`);
       }
       if (cape != null && cape >= 800) up('marg', `Air très instable (CAPE ${Math.round(cape)} J/kg) : surveille les cumulus qui gonflent, risque d’orage`);
+      // heure en cours : on confronte la prévision à la balise la plus proche
+      const nowS = Date.now() / 1000;
+      if (Math.abs(t - nowS) <= 3600) {
+        const b = LIVE.map(x => Object.assign({ km: km([sp.lat, sp.lon], [x.lat, x.lon]) }, x)).filter(x => x.km <= 6 && Date.now() - x.t < 75 * 60e3).sort((a, c) => a.km - c.km)[0];
+        if (b && b.dir != null && b.avg != null) {
+          const dd = C.angDiff(b.dir, dir), mes = `${C.compass16(b.dir)} ${Math.round(b.avg)} km/h`, prev = `${C.compass16(dir)} ${Math.round(mean)} km/h`;
+          if ((dd >= 45 && Math.max(b.avg, mean) >= 6) || Math.abs(b.avg - mean) >= 8)
+            up('marg', `La balise ${b.name || ''} (${f1(b.km)} km) mesure ${mes}, la prévision dit ${prev} : le modèle se trompe ici, fie-toi à la balise`);
+          else rating.reasons.push({ s: 'ok', txt: `La balise ${b.name || ''} (${f1(b.km)} km) confirme la prévision : ${mes}` });
+          if (sp.dirs && sp.dirs.length && b.avg >= 5) {
+            const devB = Math.min(...sp.dirs.map(x => C.angDiff(b.dir, C.COMPASS[x]))), avB = (sp.avoid || []).some(x => C.angDiff(b.dir, C.COMPASS[x]) <= 30);
+            if (avB) up('no', `Vent mesuré de ${C.compass16(b.dir)} : secteur déconseillé sur ce site`);
+            else if (devB > 50) up('no', `Vent mesuré de ${C.compass16(b.dir)} : hors de l’axe du site`);
+          }
+          const L = C.LIMITS[S.level];
+          if (b.max != null && b.max > Math.min(L.gust, (sp.vmax || 99) + 6)) up('no', `Rafales mesurées à ${Math.round(b.max)} km/h à la balise`);
+        }
+      }
     }
     const lee = rating.dev != null && rating.dev > 110 && (mean || 0) >= 5;
     const turb = C.turbIndex({ mean: mean || 0, gust, shear, lee, wstar });
@@ -2060,6 +2078,7 @@ if (typeof module !== 'undefined') module.exports = Core;
         .map(x => ({ id: x.id, name: x.name, lat: x.lat, lon: x.lon, t: Date.parse(x.m.date), dir: x.m.wind_heading, avg: x.m.wind_speed_avg, max: x.m.wind_speed_max }));
       if (LIVE.length && !loadLive.attr) { map.attributionControl.addAttribution('Balises © contributeurs du réseau <a href="https://www.openwindmap.org/">Pioupiou</a>'); loadLive.attr = true; }
     } catch (e) { LIVE = []; }
+    cache.clear(); renderList(); renderMarkers(); renderGrille(); renderDetail();
     renderLive(); const box = $('#livebox'); if (box) box.innerHTML = liveHTML(SPOTS.find(s => s.id === S.spot));
   }
   const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'à l’instant' : m < 60 ? `il y a ${m} min` : `il y a ${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`; };
